@@ -66,134 +66,108 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.4.2</version>
-				<configuration>
-					<finalName>CompareMap</finalName>
-					<appendAssemblyId>false</appendAssemblyId>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifestEntries>
-							<Main-Class>cgdp.corealign.CompareMap</Main-Class>
-						</manifestEntries>
-					</archive>
-				</configuration>
 				<executions>
 					<execution>
+						<id>CompareMap</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<finalName>CompareMap</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifestEntries>
+									<Main-Class>cgdp.corealign.CompareMap</Main-Class>
+								</manifestEntries>
+							</archive>
+						</configuration>
 					</execution>
-				</executions>
-			</plugin>
-			<!-- FindIsland.jarの設定 -->
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.4.2</version>
-				<configuration>
-					<finalName>FindIsland</finalName>
-					<appendAssemblyId>false</appendAssemblyId>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifestEntries>
-							<Main-Class>cgdp.corealign.FindIsland</Main-Class>
-						</manifestEntries>
-					</archive>
-				</configuration>
-				<executions>
 					<execution>
+						<id>FindIsland</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<finalName>FindIsland</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifestEntries>
+									<Main-Class>cgdp.corealign.FindIsland</Main-Class>
+								</manifestEntries>
+							</archive>
+						</configuration>
 					</execution>
-				</executions>
-			</plugin>
-			<!-- SyntenyAnalysis.jarの設定 -->
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.4.2</version>
-				<configuration>
-					<finalName>SyntenyAnalysis</finalName>
-					<appendAssemblyId>false</appendAssemblyId>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifestEntries>
-							<Main-Class>cgdp.corealign.SyntenyAnalysis</Main-Class>
-						</manifestEntries>
-					</archive>
-				</configuration>
-				<executions>
 					<execution>
+						<id>SyntenyAnalysis</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<finalName>SyntenyAnalysis</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifestEntries>
+									<Main-Class>cgdp.corealign.SyntenyAnalysis</Main-Class>
+								</manifestEntries>
+							</archive>
+						</configuration>
 					</execution>
-				</executions>
-			</plugin>
-			<!-- GraphicalOutput.jarの設定 -->
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.4.2</version>
-				<configuration>
-					<finalName>GraphicalOutput</finalName>
-					<appendAssemblyId>false</appendAssemblyId>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifestEntries>
-							<Main-Class>cgdp.corealign.GraphicalOutput</Main-Class>
-						</manifestEntries>
-					</archive>
-				</configuration>
-				<executions>
 					<execution>
+						<id>GraphicalOutput</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<finalName>GraphicalOutput</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifestEntries>
+									<Main-Class>cgdp.corealign.GraphicalOutput</Main-Class>
+								</manifestEntries>
+							</archive>
+						</configuration>
 					</execution>
-				</executions>
-			</plugin>
-			<!--
-				CompGenomeMap.jarの設定
-				mainメソッドが無いため起動できない。
-			-->
-			<!--
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.4.2</version>
-				<configuration>
-					<finalName>CompGenomeMap</finalName>
-					<appendAssemblyId>false</appendAssemblyId>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifestEntries>
-							<Main-Class>cgdp.corealign.CompGenomeMap</Main-Class>
-						</manifestEntries>
-					</archive>
-				</configuration>
-				<executions>
+					<!--
+						CompGenomeMap.jarの設定
+						mainメソッドが無いため起動できない。
+					-->
 					<execution>
+						<id>CompGenomeMap</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<finalName>CompGenomeMap</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifestEntries>
+									<Main-Class>cgdp.corealign.CompGenomeMap</Main-Class>
+								</manifestEntries>
+							</archive>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-
-			-->
-
 		</plugins>
 	</build>
 </project>
