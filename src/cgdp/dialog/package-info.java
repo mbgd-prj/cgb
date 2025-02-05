@@ -1,0 +1,4 @@
+/**
+ * ダイアログパッケージ。
+ */
+package cgdp.dialog;

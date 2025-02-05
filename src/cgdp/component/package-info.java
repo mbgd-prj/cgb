@@ -1,0 +1,4 @@
+/**
+ * テーブルパッケージ。
+ */
+package cgdp.component;

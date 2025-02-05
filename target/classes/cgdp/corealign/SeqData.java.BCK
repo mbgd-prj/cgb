@@ -1,0 +1,89 @@
+package cgdp.corealign;
+
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+
+import cgat.seq.*;
+
+class GenomeSequences {
+	ArrayList<DNASequence> seqData;
+	HashMap<String,DNASequence> seqHash;
+
+	GenomeSequences() {
+		seqData = new ArrayList<DNASequence>();
+		seqHash = new HashMap<String,DNASequence>();
+	}
+	void addSequence(DNASequence seq) {
+		seqHash.put(seq.getName(), seq);
+		seqData.add(seq);
+	}
+	DNASequence getSequence(String spname, int seqno) {
+		String chrname = spname + ":" + seqno;
+		return getSequence(chrname);
+	}
+	DNASequence getSequence(String chrname) {
+		return seqHash.get(chrname);
+	}
+	static GenomeSequences readSeqData(String seqFile) {
+		GenomeSequences genomeSeq = new GenomeSequences();
+		FastaFile f = null;
+		try {
+			f = new FastaFile(seqFile);
+		} catch (IOException e) {
+			System.err.println("Can't open file");
+			System.exit(1);
+		}
+		f.asDNA();
+		DNASequence seq = null;
+		try {
+			while ((seq = (DNASequence) f.readSeq()) != null) {
+				genomeSeq.addSequence(seq);
+			}
+		} catch (IOException e) {
+			System.err.println("Sequenc read error");
+			System.exit(1);
+		}
+		return(genomeSeq);
+	}
+	void writeSeqData(String seqFile) {
+		for (DNASequence seq: seqData) {
+			byte bval = 0;
+			int i = 0;
+			boolean err = false;
+			ArrayList<Byte> byteSeq = new ArrayList<Byte>();
+			for (i = 0; i < seq.length(); i++) {
+				char c = seq.charAt(i);
+				switch (c) {
+				case 'A': 
+					break;
+				case 'C': 
+					bval += 1;
+					break;
+				case 'G': 
+					bval += 2;
+					break;
+				case 'T': 
+					bval += 3;
+					break;
+				default: 
+					err = true;
+				}
+				bval <<= 2;
+				if (++i % 4 == 0) {
+					byteSeq.add(bval);
+					bval = 0;
+				}
+			}
+			System.out.println(byteSeq);
+		}
+	}
+	public static void main(String args[]) {
+		String seqFile = args[0];
+		String chrName = args[1];
+		GenomeSequences genomeSeq = GenomeSequences.readSeqData(seqFile);
+		Sequence seq = genomeSeq.getSequence(chrName);
+		System.out.println(seq.createSubSequence(1,1000));
+	}
+}
+

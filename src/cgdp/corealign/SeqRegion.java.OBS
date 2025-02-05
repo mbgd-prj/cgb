@@ -1,0 +1,91 @@
+package cgdp.corealign;
+import java.lang.*;
+
+/**
+ * Sequence region
+ */
+class SeqRegion extends SeqRegionGen<Integer> {
+	SeqRegion(int begin, int end) {
+		super(begin, end);
+	}
+}
+class SeqRegionGen<T extends Number> {
+        T begin, end;
+	static int offset = 1;
+        SeqRegionGen() {
+	}
+        SeqRegionGen(T _begin, T _end) {
+                begin = _begin;
+                end = _end;
+        }
+	static void zeroBased() {
+		offset = 0;
+	}
+	boolean overlap() {
+		return true;
+	}
+	boolean overlap(SeqRegionGen<T> seqReg) {
+		return overlap(seqReg, 1);
+	}
+	boolean overlap(SeqRegionGen<T> seqReg, int minOvlp) {
+		if (seqReg == null) {
+			return false;
+		}
+		return (seqReg.end() - begin() + offset >= minOvlp && end() - seqReg.begin() + offset >= minOvlp);
+	}
+	SeqRegionGen<T> overlapRegion(SeqRegionGen<T> seqReg) {
+		return overlapRegion(seqReg, 1);
+	}
+	SeqRegionGen<T> overlapRegion(SeqRegionGen<T> seqReg, int minOvlp) {
+		if (! overlap(seqReg)) {
+			return null;
+		}
+		SeqRegionGen<T> ovlpReg = new SeqRegionGen<T>();
+		ovlpReg.setRegion( Math.max( begin(), seqReg.begin() ),
+				   Math.min( end(), seqReg.end() ) );
+		return(ovlpReg);
+	}
+	T begin() {
+		return begin;
+	}
+	T end() {
+		return end;
+	}
+	void setRegion(SeqRegionGen<T> seqreg) {
+		setRegion(seqreg.begin(), seqreg.end());
+	}
+	void setRegion(T _begin, T _end) {
+		begin = _begin;
+		end = _end;
+	}
+	void setCenterPos(T centerPos) {
+		T shift = centerPos - (begin+end)/2;
+		begin += shift;
+		end += shift;
+	}
+
+        int length() {
+                return(end() - begin() + offset);
+        }
+        public String toString() {
+                return begin()+" "+end();
+        }
+}
+
+/*
+ * OBS: Sequence region with truncation
+class SeqRegionTrunc extends SeqRegion {
+        boolean truncL, truncR;
+        SeqRegionTrunc(int _begin, int _end, boolean _truncL, boolean _truncR) {
+                super(_begin, _end);
+                truncL = _truncL; truncR = _truncR;
+        }
+        SeqRegionTrunc (SeqRegion seqreg) {
+                super(seqreg.begin, seqreg.end);
+                truncL = truncR = false;
+        }
+        boolean isTruncL() {return truncL;}
+        boolean isTruncR() {return truncR;}
+}
+*/
+
