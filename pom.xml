@@ -162,7 +162,10 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- CompGenomeMap.jarの設定 -->
+			<!--
+				CompGenomeMap.jarの設定
+				mainメソッドが無いため起動できない。
+			-->
 			<!--
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
