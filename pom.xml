@@ -146,29 +146,6 @@
 							</archive>
 						</configuration>
 					</execution>
-					<!--
-						CompGenomeMap.jarの設定
-						mainメソッドが無いため起動できない。
-					-->
-					<execution>
-						<id>CompGenomeMap</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<finalName>CompGenomeMap</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
-							<archive>
-								<manifestEntries>
-									<Main-Class>cgdp.corealign.CompGenomeMap</Main-Class>
-								</manifestEntries>
-							</archive>
-						</configuration>
-					</execution>
 				</executions>
 			</plugin>
 		</plugins>
