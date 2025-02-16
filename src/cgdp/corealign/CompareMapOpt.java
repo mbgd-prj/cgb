@@ -2,6 +2,7 @@ package cgdp.corealign;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -9,6 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -623,7 +628,7 @@ public class CompareMapOpt {
 	 * クラスタグループの保存形式リストを取得する。
 	 * @return クラスタグループの保存形式リスト。
 	 */
-	private List<Map<String, Object>> getCGList() {
+	public List<Map<String, Object>> getCGList() {
 		List<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
 		if (this.clusterGroupList != null) {
 			for (ClusterGroup cg: this.clusterGroupList) {
@@ -641,6 +646,38 @@ public class CompareMapOpt {
 		}
 		return ret;
 	}
+
+	/**
+	 * クラスタグループの保存処理。
+	 * @param idx クラスタグループのインデックス。
+	 * @param path ファイルのパス。
+	 * @throws Exception 例外。
+	 */
+	public void saveClusterGroup(final int idx, final String path) throws Exception {
+		List<Map<String, Object>> cglist = this.getCGList();
+		Map<String, Object> cg = cglist.get(idx);
+		String json = JSON.encode(cg, true);
+		logger.debug("json=" + json);
+		Charset charset = Charset.defaultCharset();
+		Path p = Paths.get(path);
+		try (BufferedWriter writer = Files.newBufferedWriter(p, charset)) {
+			writer.write(json);
+		}
+	}
+
+	/**
+	 * クラスタグループの読み込み処理。
+	 * @param grpfile ファイルのパス。
+	 * @throws Exception 例外。
+	 */
+	public void loadClusterGroup(final File grpfile) throws Exception {
+		try (FileInputStream is = new FileInputStream(grpfile)) {
+			@SuppressWarnings("unchecked")
+			Map<String, Object> map = JSON.decode(is, HashMap.class);
+			this.addClusterGroup(map);
+		}
+	}
+
 
 	/**
 	 * Map形式のステータス情報を設定する。。
@@ -721,6 +758,25 @@ public class CompareMapOpt {
 			}
 		}
 		return ret;
+	}
+
+
+	/**
+	 * statusファイルからクラスタグループリストを取得する。
+	 * @param map statusファイルのパース結果。
+	 * @return クラスタグループリスト。
+	 */
+	public void addClusterGroup(Map<String, Object> map) {
+		logger.debug("addClusterGroup: map=" + JSON.encode(map, true));
+		ClusterGroup cg = new ClusterGroup(map);
+		@SuppressWarnings("unchecked")
+		List<String> cidList = (List<String>) map.get("clusterIdList");
+		for (String cid: cidList) {
+			Cluster cluster = this.coreGenome.getCluster(cid);
+			logger.debug("cluster.id=" + cluster.id);
+			cg.addCluster(cluster);
+		}
+		this.clusterGroupList.add(cg);
 	}
 
 
@@ -1370,4 +1426,22 @@ public class CompareMapOpt {
 		return fname;
 	}
 
+
+	/**
+	 * デフォルト*.grpファイル名を取得する。
+	 * @return デフォルト*.grpファイル名。
+	 */
+	public String getDefaultGroupFile(final String grpname) {
+		String fname = this.getFilePath(this.getCorefile()) + "_" + grpname + ".grp";
+		return fname;
+	}
+
+	/**
+	 * デフォルト*.grpファイル名を取得する。
+	 * @return デフォルト*.grpファイル名。
+	 */
+	public String getDefaultGroupDir() {
+		String fname = this.getFilePath(this.getCorefile());
+		return fname;
+	}
 }

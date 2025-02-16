@@ -499,11 +499,12 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 		});
 		// グループの編集はグループが存在する時のみ有効。
 		this.setEnabledListener(this.editGroup, () -> {
-			List<ClusterGroup> list = ComparativeMapViewer.this.option.getClusterGroupList();
+			/*List<ClusterGroup> list = ComparativeMapViewer.this.option.getClusterGroupList();
 			if (list != null && list.size() > 0) {
 				return true;
 			}
-			return false;
+			return false;*/
+			return true;
 		});
 
 

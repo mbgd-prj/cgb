@@ -3,15 +3,18 @@ package cgdp.dialog;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +22,8 @@ import org.apache.logging.log4j.Logger;
 import cgdp.component.ClusterGroupTable;
 import cgdp.corealign.ComparativeMapViewer;
 import cgdp.corealign.CompareMapOpt.ClusterGroup;
+import lombok.Getter;
+import net.arnx.jsonic.JSON;
 
 /**
  * クラスタグループ一覧ダイアログ。
@@ -34,7 +39,7 @@ public class ClusterGroupListDialog extends JDialog {
 	private static Logger logger = LogManager.getLogger(ClusterGroupListDialog.class);
 
 	private final JPanel contentPanel = new JPanel();
-	private JTable table;
+	private ClusterGroupTable table;
 	/**
 	 * Viewer。
 	 */
@@ -43,6 +48,7 @@ public class ClusterGroupListDialog extends JDialog {
 	/**
 	 * 編集対象リスト。
 	 */
+	@Getter
 	private List<ClusterGroup> list = null;
 
 	/**
@@ -66,7 +72,7 @@ public class ClusterGroupListDialog extends JDialog {
 					for (ClusterGroup cg: this.viewer.getOption().getClusterGroupList()) {
 						this.list.add(cg.clone());
 					}
-					table = new ClusterGroupTable (this.list);
+					table = new ClusterGroupTable(this);
 					scrollPane.setViewportView(table);
 				} catch (Exception ex) {
 					logger.error(ex.getMessage(), ex);
@@ -77,6 +83,14 @@ public class ClusterGroupListDialog extends JDialog {
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
+			{
+				JButton loadGroupButton = new JButton("Load Group");
+				loadGroupButton.addActionListener((ActionEvent e) -> {
+					ClusterGroupListDialog.this.loadGroup();
+				});
+				loadGroupButton.setActionCommand("LoadGroup");
+				buttonPane.add(loadGroupButton);
+			}
 			{
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener((ActionEvent e) -> {
@@ -103,7 +117,57 @@ public class ClusterGroupListDialog extends JDialog {
 	 */
 	private void onOk() {
 		this.viewer.getOption().getClusterGroupList().clear();
+		logger.debug("this.list=" + JSON.encode(this.list, true));
 		this.viewer.getOption().getClusterGroupList().addAll(this.list);
 		this.viewer.repaint();
+	}
+
+	/**
+	 * グループ情報を保存します。
+	 * @param idx グループインデックス。
+	 * @throws Exception 例外。
+	 */
+	public void saveGroup(int idx) throws Exception {
+		logger.debug("saveGroup idx=" + idx);
+		String file = this.viewer.getOption().getDefaultGroupFile(this.list.get(idx).getName());
+		logger.debug("basePath=" + file);
+		JFileChooser dlg = new JFileChooser();
+		dlg.addChoosableFileFilter(new FileNameExtensionFilter("Status File(*.grp)", "grp"));
+
+		dlg.setAcceptAllFileFilterUsed(false);
+		dlg.setSelectedFile(new File(file));
+		int selected = dlg.showSaveDialog(this);
+		if (selected  == JFileChooser.APPROVE_OPTION) {
+			File f = dlg.getSelectedFile();
+			logger.debug("f=" + f.getAbsolutePath());
+			this.viewer.getOption().saveClusterGroup(idx, f.getAbsolutePath());
+		}
+	}
+
+	/**
+	 * グループ情報を読み込みます。
+	 */
+	public void loadGroup() {
+		try {
+			String basePath = this.viewer.getOption().getDefaultGroupDir();
+			JFileChooser dlg = new JFileChooser();
+			dlg.setCurrentDirectory(new File(basePath));
+			dlg.setAcceptAllFileFilterUsed(false);
+			dlg.addChoosableFileFilter(new FileNameExtensionFilter("Status File(*.grp)", "grp"));
+			int selected = dlg.showOpenDialog(this);
+			if (selected  == JFileChooser.APPROVE_OPTION) {
+				File f = dlg.getSelectedFile();
+				this.viewer.getOption().loadClusterGroup(f);
+				List<ClusterGroup> cflist = new ArrayList<ClusterGroup>();
+				cflist.addAll(this.viewer.getOption().getClusterGroupList());
+				this.list = cflist;
+				this.table.setClusterGroupList(this.list);
+				this.viewer.repaint();
+				this.viewer.setCenterPos();
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			JOptionPane.showMessageDialog(this, ex.getMessage());
+		}
 	}
 }
