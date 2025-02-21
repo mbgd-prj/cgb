@@ -261,6 +261,16 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 		locusInput.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				String centerPosStr = locusInput.getText();
+				if (centerPosStr != null) {
+					if (centerPosStr.indexOf("cluster:") == 0) {
+						String clustId = centerPosStr.replace("cluster:", "");
+						List<String[]> list = ComparativeMapViewer.this.searchClustId(clustId);
+						if (list.size() > 0) {
+							centerPosStr = list.get(0)[1];
+							System.err.println("*** centerPosStr=" + centerPosStr);
+						}
+					}
+				}
 				drawer.setCenterPosByStr(centerPosStr, true);
 				repaint();
 			}
@@ -1155,10 +1165,8 @@ System.out.println("###SEQ=>> "+sequence.getName()+" "+seq.length());
 	 */
 	public List<String> searchGeneName(final String name, final boolean clustidMode) {
 		if (clustidMode) {
+			List<String[]> list =  this.searchClustId(name);
 			List<String> ret = new ArrayList<String>();
-			CoreGenome coreGenome = this.getDrawer().coreGenome;
-			List<String[]> list = coreGenome.searchClustid(name);
-			list.addAll(this.getDrawer().getIsland().searchClustid(name));
 			for (String[] r: list) {
 				logger.debug("hit=" + r[0] + ", " + r[1]);
 				ret.add(r[1] + "(" + r[0] + ")");
@@ -1178,6 +1186,18 @@ System.out.println("###SEQ=>> "+sequence.getName()+" "+seq.length());
 			}
 			return ret;
 		}
+	}
+
+	/**
+	 * クラスタIDで検索します。
+	 * @param name クラスタID。
+	 * @return 検索結果。
+	 */
+	private List<String[]> searchClustId(final String name) {
+		CoreGenome coreGenome = this.getDrawer().coreGenome;
+		List<String[]> list = coreGenome.searchClustid(name);
+		list.addAll(this.getDrawer().getIsland().searchClustid(name));
+		return list;
 	}
 
 	/**
