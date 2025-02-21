@@ -1929,8 +1929,31 @@ public class ComparativeMapDrawer implements Drawer {
 		setCenterPosByStr(centerPosStr, false);
 	}
 
+	private void setYPos(final String locus) {
+		String[] sp = locus.split(":");
+		System.err.println("species=" + sp[0]);
+		ArrayList<GenomeMapInfo> currGinfoList = this.getCurrGinfoList();
+		int spNo = -1;
+		for (int i = 0; i < currGinfoList.size(); i++) {
+			GenomeMapInfo ginfo = currGinfoList.get(i);
+			String spec = ginfo.genome.getSpCode();
+			if (sp[0].equals(spec)) {
+				spNo = i;
+				break;
+			}
+		}
+		System.err.println("spNo=" + spNo);
+		int ypos = this.get_ypos(spNo);
+		System.err.println("ypos=" + ypos);
+		this.mapViewer.getScrollPane().getVerticalScrollBar().setValue(ypos);
+	}
+
+
 	public void setCenterPosByStr(String centerPosStr, boolean flag_setRefSp) {
 		logger.debug("centerPosStr=" + centerPosStr);
+
+		this.setYPos(centerPosStr);
+
 		GenomicLocus centerPos;
 		Gene g = genomeData.genes.getGene(centerPosStr);
 		if (g != null) {

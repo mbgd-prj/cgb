@@ -303,6 +303,7 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 		this.setButtonStatus();
 	}
 
+
 	private void setButtonStatus() {
 		this.centerSelectButton.setEnabled(this.isSelectCenterEnabled());
 	}
