@@ -498,6 +498,7 @@ public class ComparativeMapDrawer implements Drawer {
 			for (Cluster selClst : compMap.getSelectedClusters()) {
 				selectedSpSet.addAll(selClst.spSet());
 			}
+			System.err.println("selectedSpSet=" + JSON.encode(selectedSpSet, true));
 			currGinfoList = compMap.getGenomeMapInfoList(selectedSpSet);
 		} else {
 			currGinfoList = compMap.getGenomeMapInfoList();

@@ -268,6 +268,9 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 						if (list.size() > 0) {
 							centerPosStr = list.get(0)[1];
 							System.err.println("*** centerPosStr=" + centerPosStr);
+						} else {
+							JOptionPane.showMessageDialog(ComparativeMapViewer.this, "Cluster id " + clustId + " not found.");
+							return;
 						}
 					}
 				}
