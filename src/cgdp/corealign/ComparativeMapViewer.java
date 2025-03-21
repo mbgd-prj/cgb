@@ -262,12 +262,14 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 			public void actionPerformed(ActionEvent e) {
 				String centerPosStr = locusInput.getText();
 				if (centerPosStr != null) {
-					if (centerPosStr.indexOf("cluster:") == 0) {
+					String loc = getSpOnlyLocation(centerPosStr);
+					if (loc != null) {
+						centerPosStr = loc;
+					} else 	if (centerPosStr.indexOf("cluster:") == 0) {
 						String clustId = centerPosStr.replace("cluster:", "");
 						List<String[]> list = ComparativeMapViewer.this.searchClustId(clustId);
 						if (list.size() > 0) {
 							centerPosStr = list.get(0)[1];
-							System.err.println("*** centerPosStr=" + centerPosStr);
 						} else {
 							JOptionPane.showMessageDialog(ComparativeMapViewer.this, "Cluster id " + clustId + " not found.");
 							return;
@@ -306,6 +308,21 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 		this.setButtonStatus();
 	}
 
+	/**
+	 * "<spname>:"形式の場合のロケーション取得。
+	 * @param centerPosStr 場所指定文字列。
+	 * @return 中心文字列。
+	 */
+	private String getSpOnlyLocation(String centerPosStr) {
+		String ret = null;
+		if (Pattern.matches(".+:$", centerPosStr)) {
+			String sp = centerPosStr.replace(":", "");
+			Map<String, List<String>> map = getDrawer().getCompMap().getSpLocusListMap();
+			List<String> loclist = map.get(sp);
+			ret = centerPosStr + loclist.get(0);
+		}
+		return ret;
+	}
 
 	private void setButtonStatus() {
 		this.centerSelectButton.setEnabled(this.isSelectCenterEnabled());
