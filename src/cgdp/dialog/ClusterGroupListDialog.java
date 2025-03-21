@@ -84,7 +84,15 @@ public class ClusterGroupListDialog extends JDialog {
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
-				JButton loadGroupButton = new JButton("Load Group");
+				JButton saveAllGroupButton = new JButton("Save all group");
+				saveAllGroupButton.addActionListener((ActionEvent e) -> {
+					ClusterGroupListDialog.this.saveAllGroups();
+				});
+				saveAllGroupButton.setActionCommand("SaveAllGroup");
+				buttonPane.add(saveAllGroupButton);
+			}
+			{
+				JButton loadGroupButton = new JButton("Load group");
 				loadGroupButton.addActionListener((ActionEvent e) -> {
 					ClusterGroupListDialog.this.loadGroup();
 				});
@@ -145,19 +153,54 @@ public class ClusterGroupListDialog extends JDialog {
 	}
 
 	/**
+	 * 全グループ保存。
+	 */
+	public void saveAllGroups()  {
+		try {
+			int cnt = 0;
+			if (JOptionPane.showConfirmDialog(this, "Do you want to save all groups?", null, JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+				return;
+			}
+			for (int i = 0; i < this.list.size(); i++) {
+				ClusterGroup cg = this.list.get(i);
+				String f = this.viewer.getOption().getDefaultGroupFile(cg.getName());
+				File file = new File(f);
+				if (file.exists()) {
+					String msg = "'" + file.getAbsolutePath() + "' is exists. Overwrite it ?";
+					if (JOptionPane.showConfirmDialog(this, msg, null, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						this.viewer.getOption().saveClusterGroup(i, file.getAbsolutePath());
+						cnt++;
+					};
+				} else {
+					this.viewer.getOption().saveClusterGroup(i, file.getAbsolutePath());
+					cnt++;
+				}
+			}
+			String msg = cnt + " groups saved.";
+			JOptionPane.showMessageDialog(this, msg);
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			JOptionPane.showMessageDialog(this, ex.getMessage());
+		}
+	}
+
+	/**
 	 * グループ情報を読み込みます。
 	 */
 	public void loadGroup() {
 		try {
 			String basePath = this.viewer.getOption().getDefaultGroupDir();
 			JFileChooser dlg = new JFileChooser();
+			dlg.setMultiSelectionEnabled(true);
 			dlg.setCurrentDirectory(new File(basePath));
 			dlg.setAcceptAllFileFilterUsed(false);
 			dlg.addChoosableFileFilter(new FileNameExtensionFilter("Status File(*.grp)", "grp"));
 			int selected = dlg.showOpenDialog(this);
 			if (selected  == JFileChooser.APPROVE_OPTION) {
-				File f = dlg.getSelectedFile();
-				this.viewer.getOption().loadClusterGroup(f);
+				File[] filelist = dlg.getSelectedFiles();
+				for (File f:filelist) {
+					this.viewer.getOption().loadClusterGroup(f);
+				}
 				List<ClusterGroup> cflist = new ArrayList<ClusterGroup>();
 				cflist.addAll(this.viewer.getOption().getClusterGroupList());
 				this.list = cflist;
