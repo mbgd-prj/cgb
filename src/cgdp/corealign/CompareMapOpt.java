@@ -566,6 +566,13 @@ public class CompareMapOpt {
 	}
 
 	/**
+	 * クラスタグループリストをクリアします。
+	 */
+	public void resetClusterGroupList() {
+		this.clusterGroupList = new ArrayList<ClusterGroup>();
+	}
+
+	/**
 	 * Otherファイル名を追加する。
 	 * @param otherFile Otherファイル名。
 	 */
@@ -649,14 +656,12 @@ public class CompareMapOpt {
 
 	/**
 	 * クラスタグループの保存処理。
-	 * @param idx クラスタグループのインデックス。
 	 * @param path ファイルのパス。
 	 * @throws Exception 例外。
 	 */
-	public void saveClusterGroup(final int idx, final String path) throws Exception {
+	public void saveClusterGroup(final String path) throws Exception {
 		List<Map<String, Object>> cglist = this.getCGList();
-		Map<String, Object> cg = cglist.get(idx);
-		String json = JSON.encode(cg, true);
+		String json = JSON.encode(cglist, true);
 		logger.debug("json=" + json);
 		Charset charset = Charset.defaultCharset();
 		Path p = Paths.get(path);
@@ -672,12 +677,14 @@ public class CompareMapOpt {
 	 */
 	public void loadClusterGroup(final File grpfile) throws Exception {
 		try (FileInputStream is = new FileInputStream(grpfile)) {
+			this.resetClusterGroupList();
 			@SuppressWarnings("unchecked")
-			Map<String, Object> map = JSON.decode(is, HashMap.class);
-			this.addClusterGroup(map);
+			List<Map<String, Object>> list = JSON.decode(is, ArrayList.class);
+			for (Map<String, Object> m: list)  {
+				this.addClusterGroup(m);
+			}
 		}
 	}
-
 
 	/**
 	 * Map形式のステータス情報を設定する。。
@@ -1432,7 +1439,7 @@ public class CompareMapOpt {
 	 * @return デフォルト*.grpファイル名。
 	 */
 	public String getDefaultGroupFile(final String grpname) {
-		String fname = this.getFilePath(this.getCorefile()) + "_" + grpname + ".grp";
+		String fname = this.getFilePath(this.getCorefile()) + ".grp";
 		return fname;
 	}
 

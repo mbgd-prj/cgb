@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.JColorChooser;
-import javax.swing.JOptionPane;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +28,6 @@ public class ClusterGroupTable extends UserTable {
 	private static final String NAME = "Name";
 	private static final String COLOR = "Color";
 	private static final String DELETE = "Delete";
-	private static final String SAVE = "Save";
 	private static Logger logger = LogManager.getLogger(ClusterGroupTable.class);
 
 	/**
@@ -60,24 +58,7 @@ public class ClusterGroupTable extends UserTable {
 				public void action(ActionEvent e) {
 					int idx = ClusterGroupTable.this.getSelectedRow();
 					logger.debug("delete row=" + idx);
-					ClusterGroupTable.this.deleteClusterGroup(idx);
-				}
-			}));
-			this.addColumnInfo(new ColumnInfo(SAVE, null, true, String.class, new ButtonCellRenderer(), new ButtonCellEditor() {
-				/**
-				 *
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void action(ActionEvent e) {
-					try {
-						int idx = ClusterGroupTable.this.getSelectedRow();
-						ClusterGroupTable.this.saveClusterGroup(idx);
-					} catch (Exception ex) {
-						logger.error(ex.getMessage(), ex);
-						JOptionPane.showMessageDialog(ClusterGroupTable.this.dialog, ex.getMessage());
-					}
+					// ClusterGroupTable.this.deleteClusterGroup(idx);
 				}
 			}));
 		}
@@ -95,25 +76,29 @@ public class ClusterGroupTable extends UserTable {
 	public ClusterGroupTable(ClusterGroupListDialog dialog) {
 		this.dialog = dialog;
 		this.list = dialog.getList();
-		this.setModel(new ClusterGroupTableModel(list));
+		this.setModel(new ClusterGroupTableModel(this.list));
 		this.getColumn(VISIBLE).setPreferredWidth(60);
 		this.getColumn(NAME).setPreferredWidth(200);
 		this.getColumn(COLOR).setPreferredWidth(60);
 
 		this.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
+			public void mouseReleased(MouseEvent e) {
+				super.mouseReleased(e);
 				int col = ClusterGroupTable.this.getSelectedColumn();
 				int row = ClusterGroupTable.this.getSelectedRow();
 				logger.debug("row=" + row + ", col=" + col);
 				if (col == 2) {
 					ClusterGroupTable.this.selectColor(row);
+				} else 	if (col == 3) {
+					ClusterGroupTable.this.deleteClusterGroup(row);
 				}
 			}
 		});
 	}
 
 	public void setClusterGroupList(List<ClusterGroup> list) {
+		this.list = list;
 		this.setModel(new ClusterGroupTableModel(list));
 	}
 
@@ -131,10 +116,10 @@ public class ClusterGroupTable extends UserTable {
 	 * @param idx 保存するクラスタグルーブのインデックス。
 	 * @throws Exception 例外。
 	 */
-	protected void saveClusterGroup(int idx) throws Exception {
-		logger.debug("idx=" + idx);
-		this.dialog.saveGroup(idx);
-	}
+//	protected void saveClusterGroup(int idx) throws Exception {
+//		logger.debug("idx=" + idx);
+//		this.dialog.saveGroup(idx);
+//	}
 
 	/**
 	 * 色の選択を行います。
