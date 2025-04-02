@@ -136,13 +136,21 @@ public class ClusterGroupListDialog extends JDialog {
 	}
 
 	/**
-	 * OKボタンの処理。
+	 * Viewerを更新します。
 	 */
-	private void onOk() {
+	public void updateViewer() {
 		this.viewer.getOption().getClusterGroupList().clear();
 		logger.debug("this.list=" + JSON.encode(this.list, true));
 		this.viewer.getOption().getClusterGroupList().addAll(this.list);
 		this.viewer.repaint();
+	}
+
+
+	/**
+	 * OKボタンの処理。
+	 */
+	private void onOk() {
+		this.updateViewer();
 	}
 
 	/**

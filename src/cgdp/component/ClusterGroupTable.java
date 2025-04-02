@@ -88,10 +88,14 @@ public class ClusterGroupTable extends UserTable {
 				int col = ClusterGroupTable.this.getSelectedColumn();
 				int row = ClusterGroupTable.this.getSelectedRow();
 				logger.debug("row=" + row + ", col=" + col);
-				if (col == 2) {
+				if (col == 0) {
+					ClusterGroupTable.this.dialog.updateViewer();
+				} else if (col == 2) {
 					ClusterGroupTable.this.selectColor(row);
+					ClusterGroupTable.this.dialog.updateViewer();
 				} else 	if (col == 3) {
 					ClusterGroupTable.this.deleteClusterGroup(row);
+					ClusterGroupTable.this.dialog.updateViewer();
 				}
 			}
 		});
