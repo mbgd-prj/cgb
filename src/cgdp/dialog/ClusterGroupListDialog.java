@@ -217,16 +217,14 @@ public class ClusterGroupListDialog extends JDialog {
 		try {
 			String basePath = this.viewer.getOption().getDefaultGroupDir();
 			JFileChooser dlg = new JFileChooser();
-			dlg.setMultiSelectionEnabled(true);
+			// dlg.setMultiSelectionEnabled(true);
 			dlg.setCurrentDirectory(new File(basePath));
 			dlg.setAcceptAllFileFilterUsed(false);
 			dlg.addChoosableFileFilter(new FileNameExtensionFilter("Status File(*.grp)", "grp"));
 			int selected = dlg.showOpenDialog(this);
 			if (selected  == JFileChooser.APPROVE_OPTION) {
-				File[] filelist = dlg.getSelectedFiles();
-				for (File f:filelist) {
-					this.viewer.getOption().loadClusterGroup(f);
-				}
+				File f = dlg.getSelectedFile();
+				this.viewer.getOption().loadClusterGroup(f);
 				List<ClusterGroup> cflist = new ArrayList<ClusterGroup>();
 				cflist.addAll(this.viewer.getOption().getClusterGroupList());
 				this.list = cflist;
