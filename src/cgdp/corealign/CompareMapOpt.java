@@ -681,6 +681,9 @@ public class CompareMapOpt {
 			@SuppressWarnings("unchecked")
 			List<Map<String, Object>> list = JSON.decode(is, ArrayList.class);
 			for (Map<String, Object> m: list)  {
+				if (m.get("colorCode") == null) {
+					m.put("colorCode", this.getNewColor());
+				}
 				this.addClusterGroup(m);
 			}
 		}
