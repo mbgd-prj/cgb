@@ -751,18 +751,22 @@ class Cluster implements ClusterI, Serializable {
 	}
 	/** Move the specified gene at first in the member list of that species (inparalogs), which will be located center when centering */
 	public void prioritizeGene(Gene gene) {
-		int spi = species.getIdx(gene.sp);
-		LinkedList<DomCluster> memb = members[spi];
-		if (memb != null) {
-			for (DomCluster dcl: memb) {
-				if (gene.equals(dcl.dom.gene)) {
-					System.out.println("Move first>>>>"+dcl.dom.gene);
-					memb.remove(dcl);
-					memb.addFirst(dcl);
+		System.err.println("species=" + species);
+		System.err.println("gene=" + gene);
+		if (this.species != null) {
+			int spi = species.getIdx(gene.sp);
+			LinkedList<DomCluster> memb = members[spi];
+			if (memb != null) {
+				for (DomCluster dcl: memb) {
+					if (gene.equals(dcl.dom.gene)) {
+						System.out.println("Move first>>>>"+dcl.dom.gene);
+						memb.remove(dcl);
+						memb.addFirst(dcl);
 
-					String text = dcl.dom.gene.sp + ":" + dcl.dom.gene.name;
-					CompareMap.getViewer().getLocusInput().setText(text);
-					break;
+						String text = dcl.dom.gene.sp + ":" + dcl.dom.gene.name;
+						CompareMap.getViewer().getLocusInput().setText(text);
+						break;
+					}
 				}
 			}
 		}
