@@ -494,14 +494,14 @@ System.out.println("SSSSS:"+pos_begin+" "+pos_end+" // "+gene.getBegin0()+" "+ge
 		int chrLen = c.getLength();
 /*if (pos==905995) {
 	System.out.println("AAA>"+seqno+";chrlen="+chrLen+" "+chromShift[seqno]);
-}
+}*/
 if (chrLen == 0) {
 System.out.println("sp="+genome.spcode+" "+"chrlen="+chrLen+" "+seqno+" "+pos);
-}*/
+}
 		if (mode == 0) {
 			pos = pos + chromShift[seqno];
 		}
-		if (c.isCircular()) {
+		if (c.isCircular() && chrLen > 0) {
 			pos = pos % chrLen;
 			pos = (pos > 0) ? pos : (pos + chrLen);
 		}

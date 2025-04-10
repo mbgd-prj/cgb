@@ -966,6 +966,47 @@ public class ComparativeMapDrawer implements Drawer {
 		int viewWidth = getViewWidth();
 		int extraWidth = (int) ((double) viewWidth * 0.2);
 		int minWidth = 2000;
+		ClusterSet cset = cg.getClusterSet();
+		for (Cluster c: cset.clusterList) {
+//			logger.info("cluster=" + c.id);
+			Integer prevPos = null;
+			int spNo = drawRegSp.begin;
+			for (LinkedList<DomCluster> list: c.members) {
+				if (list.size() > 0) {
+					GenomeMapInfo ginfo = currGinfoList.get(spNo);
+					DomCluster dc = list.get(0);
+					Gene gene = dc.dom.gene;
+					int pos = getDisplayPos(ginfo.getGeneViewPosition(gene));
+					extraWidth = (extraWidth >= minWidth) ? extraWidth : minWidth;
+					if (pos < -extraWidth || pos > viewWidth + extraWidth) {
+						;
+					} else {
+						int xpos1 = get_xpos(pos);
+						int ypos1 = get_ypos(spNo);
+						drawGene(ginfo, gene, xpos1, ypos1, lineCol, 0);
+						if (param.drawLinks && prevPos != null) {
+							int xpos0 = get_xpos(prevPos);
+							int ypos0 = get_ypos(spNo - 1);
+							g.drawLine(xpos0, ypos0 - param.GENE_HEIGHT, xpos1, ypos1 + param.GENE_HEIGHT);
+						}
+					}
+					prevPos = pos;
+				}
+				spNo++;
+			}
+		}
+	}
+
+
+	/*
+	private void drawClusterGroup(final ClusterGroup cg) {
+		if (!cg.isVisible()) {
+			return;
+		}
+		Color lineCol = ColorUtil.getColor(cg.getColorCode());
+		int viewWidth = getViewWidth();
+		int extraWidth = (int) ((double) viewWidth * 0.2);
+		int minWidth = 2000;
 		LinkedList<Integer> prevPosList = null;
 		for (int spNo = drawRegSp.begin; spNo <= drawRegSp.end; spNo++) {
 			GenomeMapInfo ginfo = currGinfoList.get(spNo);
@@ -973,6 +1014,7 @@ public class ComparativeMapDrawer implements Drawer {
 			ClusterSet cset = cg.getClusterSet();
 			LinkedList<Integer> next_prevPosList = new LinkedList<Integer>();
 			for (Cluster c: cset.clusterList) {
+				System.err.println("sp=" + sp + ", c=" + c.id);
 				for (LinkedList<DomCluster> list: c.members) {
 					for (DomCluster dc: list) {
 						Gene gene = dc.dom.gene;
@@ -1000,7 +1042,7 @@ public class ComparativeMapDrawer implements Drawer {
 			}
 			prevPosList = next_prevPosList;
 		}
-	}
+	}*/
 
 	/**
 	 * Leftovers geneの表示処理。

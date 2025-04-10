@@ -21,8 +21,6 @@ import org.apache.logging.log4j.Logger;
 
 import cgat.seq.DNASequence;
 import cgat.seq.Sequence;
-import cgdp.corealign.GenomeData.ChrLenMode;
-import cgdp.corealign.GenomeData.GeneInfo;
 import cgdp.dialog.AddGroupDialog.GroupInfo;
 import lombok.Data;
 
@@ -1220,7 +1218,7 @@ System.out.println(">>>>"+sp+" "+name+" "+seqno);
 	}
 
 	public void dump() {
-		logger.debug(sp + ", " + name + ", (" + this.getRegion0().begin + ", " + this.getRegion0().end + "), " + dir);
+		logger.info(sp + ", seqno=" + this.seqno + ", pos=" + this.getPos() +  ", name=" + name + ", (" + this.getRegion0().begin + ", " + this.getRegion0().end + "), dir=" + dir);
 	}
 
 	public void setNeighbor(Gene _prev, Gene _next) {
