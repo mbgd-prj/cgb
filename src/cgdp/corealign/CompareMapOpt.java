@@ -842,6 +842,7 @@ public class CompareMapOpt {
 			List<String> typeList = reader.getFileTypeList();
 			logger.info("fileTypeList=" + JSON.encode(typeList, true));
 			if (typeList.size() == 0) {
+				// coreのみのファイルの場合
 				this.coreGenome = reader.readCoreGenome();
 				this.coreGenome.setName("Core");
 				this.coreGenome.setColor(Color.LIGHT_GRAY);
@@ -858,6 +859,7 @@ public class CompareMapOpt {
 				this.readAltGeneName();
 				this.leftoversMap = this.createLeftoversMap();
 			} else {
+				// 1ファイルにcore,island,otherをまとめたファイルの場合。
 				for (String type: typeList) {
 					if ("core".equals(type)) {
 						this.coreGenome = reader.readCoreGenome(type);

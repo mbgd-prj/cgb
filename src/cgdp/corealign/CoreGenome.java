@@ -1679,6 +1679,9 @@ class CoreGenomeReader extends ClusterSetReader {
 				if (linebuf.indexOf("###") >= 0) {
 					break;
 				}
+				if (linebuf.charAt(0) == '#') {
+					continue;
+				}
 				strarray = linebuf.split("\t");
 				cid = strarray[0];
 				name = strarray[1];
