@@ -1832,6 +1832,7 @@ public class ComparativeMapDrawer implements Drawer {
 
 	void resetCenterPositions(int xpos, int ypos, boolean addFlag) {
 		GenomicLocus loc = getClickedLocus(xpos, ypos);
+
 		String refsp = loc.spec;
 		setRefSp(refsp);
 		if (isSpecNameArea(xpos)) {
@@ -1852,7 +1853,12 @@ public class ComparativeMapDrawer implements Drawer {
 			setRefSp(loc.spec);
 			return;
 		}
-		CoreCluster selCoreClust = coreGenome.getClusterByPos(loc, genomeData);
+		CoreCluster selCoreClust = null;
+		if (!this.colorIslandMode) {
+			selCoreClust = coreGenome.getClusterByPos(loc, genomeData);
+		} else {
+			selCoreClust = this.getIsland().getClusterByPos(loc, genomeData);
+		}
 		Cluster selCluster = selCoreClust.cluster;
 		if (addFlag) {
 			// toggle between select and de-select status
@@ -1936,7 +1942,12 @@ public class ComparativeMapDrawer implements Drawer {
 		//String refsp = getRefSp();
 		System.out.println("centerPos=" + loc);
 		setCenterGenePos(loc);
-		CoreCluster centerClust = coreGenome.getClusterByPos(loc, genomeData);
+		CoreCluster centerClust = null;
+		if (!this.colorIslandMode) {
+			centerClust = coreGenome.getClusterByPos(loc, genomeData);
+		} else {
+			centerClust = this.getIsland().getClusterByPos(loc, genomeData);
+		}
 		System.out.println("CLUST:" + centerClust.id());
 		if (centerClust != null) {
 			System.out.println("add=" + addFlag);

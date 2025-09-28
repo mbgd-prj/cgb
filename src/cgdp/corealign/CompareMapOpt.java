@@ -783,6 +783,18 @@ public class CompareMapOpt {
 		List<String> cidList = (List<String>) map.get("clusterIdList");
 		for (String cid: cidList) {
 			Cluster cluster = this.coreGenome.getCluster(cid);
+			if (cluster == null) {
+				cluster = this.cmap.getIsland().getCluster(cid);
+				if (cluster == null) {
+					List<CoreGenome> list = this.cmap.getOtherList();
+					for (CoreGenome g: list) {
+						cluster = g.getCluster(cid);
+						if (cluster != null) {
+							break;
+						}
+					}
+				}
+			}
 			logger.debug("cluster.id=" + cluster.id);
 			cg.addCluster(cluster);
 		}
@@ -1004,6 +1016,7 @@ public class CompareMapOpt {
 				} else {
 					this.cmap.setIsland(island);
 				}
+//				this.coreGenome.concatCore(island);
 			} catch (IOException e) {
 				e.printStackTrace(System.err);
 			}
@@ -1029,6 +1042,7 @@ public class CompareMapOpt {
 					other.setColor(Color.LIGHT_GRAY);
 					other.setBlockType(BlockType.Other);
 					this.cmap.addOther(other);
+//					this.coreGenome.concatCore(other);
 				} catch (IOException e) {
 					e.printStackTrace(System.err);
 				}
