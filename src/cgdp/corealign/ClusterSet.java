@@ -791,7 +791,7 @@ class DomCluster implements Serializable{
 	}
 
 	public void dump() {
-		logger.info("domNo=" + this.dom.domNo + ", name=" + this.dom.name + ", spec=" + this.dom.spec);
+		logger.info("domNo=" + this.dom.domNo + ", name=" + this.dom.name + ", spec=" + this.dom.spec + ",seq=" + this.dom.gene.seqno + ", pos=" + this.dom.gene.pos);
 		logger.info("clustid=" + this.clustid + ", order=" + this.order + ", coreidx1=" + this.coreidx1 + ", coreidx2=" + this.coreidx2);
 	}
 

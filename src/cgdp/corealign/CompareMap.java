@@ -63,6 +63,56 @@ public class CompareMap {
 		this.otherList = new ArrayList<CoreGenome>();
 	}
 
+
+	/**
+	 * クリック位置から、Core,Island,Otherのクラスタを取得します。
+	 * @param loc クリック位置。
+	 * @param gdata ゲノムデータ。
+	 * @return クラスタ。
+	 */
+	public CoreCluster getClusterByPos(GenomicLocus loc, GenomeData gdata) {
+		GeneIdx geneIdx = gdata.getGeneIdxByPos(loc);
+		geneIdx.dump();
+		List<CoreCluster> clist = new ArrayList<CoreCluster>();
+		{
+			logger.debug("------- core -------");
+			CoreCluster cc = this.coreGenome.getClusterByPos(loc, genomeData);
+			if (cc != null) {
+				clist.add(cc);
+			}
+		}
+		{
+			logger.debug("------- island -------");
+			CoreCluster cc = this.island.getClusterByPos(loc, genomeData);
+			if (cc != null) {
+				clist.add(cc);
+			}
+		}
+		{
+			logger.debug("------- other -------");
+			for (CoreGenome cg: this.otherList) {
+				CoreCluster cc = cg.getClusterByPos(loc, genomeData);
+				clist.add(cc);
+			}
+		}
+		CoreCluster ret = null;
+		double dist = Double.MAX_VALUE;
+		for (CoreCluster cc: clist) {
+			logger.debug("------- cc.dump() -------");
+			cc.dump();
+			logger.debug("------- getDistance() -------");
+			double d = cc.getDistance(loc);
+			logger.debug("d=" + d + ",dist=" + dist);
+			if (d < dist) {
+				dist = d;
+				ret = cc;
+				logger.debug("select");
+			}
+		}
+		return ret;
+	}
+
+
 	/**
 	 * アイランドゲノムを追加します。
 	 * @param _island アイランドゲノム。

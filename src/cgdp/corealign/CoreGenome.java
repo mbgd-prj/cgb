@@ -1077,6 +1077,8 @@ class CoreGenomeBlock implements Iterable<CoreCluster> {
 	CoreGenomeBlock() {
 		coreClusterList = new ArrayList<CoreCluster>();
 	}
+
+
 	static CoreGenomeBlock create(ClustAliPath alip, ClusterSet cSet, ClusterDir gDir) {
 		return create(alip, cSet, gDir, 0.0);
 	}
@@ -1269,6 +1271,48 @@ class CoreCluster implements ClusterI {
 		prev_node_existing = new CoreCluster[this.specNum()];
 		setClusterStatus();
 	}
+
+
+	/**
+	 * 距離を取得します。
+	 * @param loc 位置情報。
+	 * @return 距離。
+	 */
+	public double getDistance(GenomicLocus loc) {
+		double ret = Double.MAX_VALUE;
+		logger.info("cc.cluster.name=" +  this.cluster.name);
+		for (LinkedList<DomCluster> dclist: this.cluster.members) {
+			for (DomCluster dc: dclist) {
+				if (loc.spec.equals(dc.dom.spec)) {
+					double diff = Math.abs(loc.pos - dc.dom.gene.pos);
+					if (diff < ret) {
+						ret = diff;
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+
+	/**
+	 * 指定した位置のDomClusterを取得します。。
+	 * @param loc 位置情報。
+	 * @return DomCluster。
+	 */
+	public DomCluster getDomCluster(GenomicLocus loc) {
+		DomCluster ret = null;
+		logger.info("cc.cluster.name=" +  this.cluster.name);
+		for (LinkedList<DomCluster> dclist: this.cluster.members) {
+			for (DomCluster dc: dclist) {
+				if (loc.spec.equals(dc.dom.spec)) {
+					ret = dc;
+				}
+			}
+		}
+		return ret;
+	}
+
 
 	public void dump() {
 		logger.debug("CoreCluster");

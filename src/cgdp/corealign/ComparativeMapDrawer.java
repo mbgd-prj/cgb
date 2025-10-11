@@ -1847,18 +1847,35 @@ public class ComparativeMapDrawer implements Drawer {
 		selectClickedPos(xpos, ypos, false, false);
 	}
 
+	/**
+	 * クリックされた位置を選択します。
+	 * @param xpos X座標。
+	 * @param ypos Y座標。
+	 * @param addFlag 追加フラグ。
+	 * @param contiguousSelection 追加選択。
+	 */
 	void selectClickedPos(int xpos, int ypos, boolean addFlag, boolean contiguousSelection) {
 		GenomicLocus loc = getClickedLocus(xpos, ypos);
+		logger.debug("loc=[" + loc.toString() + "]");
 		if (isSpecNameArea(xpos)) {
 			setRefSp(loc.spec);
 			return;
 		}
-		CoreCluster selCoreClust = null;
-		if (!this.colorIslandMode) {
+		logger.debug("islandMode=" + this.mapViewer.getOption().getCmap().islandMode);
+
+		CoreCluster selCoreClust = this.mapViewer.getOption().getCmap().getClusterByPos(loc, genomeData);
+		if (selCoreClust != null) {
+			DomCluster dc = selCoreClust.getDomCluster(loc);
+			if (dc != null) {
+				String text = dc.dom.gene.sp + ":" + dc.dom.gene.name;
+				this.mapViewer.getLocusInput().setText(text);
+			}
+		}
+/*		if (!this.colorIslandMode) {
 			selCoreClust = coreGenome.getClusterByPos(loc, genomeData);
 		} else {
 			selCoreClust = this.getIsland().getClusterByPos(loc, genomeData);
-		}
+		}*/
 		Cluster selCluster = selCoreClust.cluster;
 		if (addFlag) {
 			// toggle between select and de-select status
@@ -1942,12 +1959,21 @@ public class ComparativeMapDrawer implements Drawer {
 		//String refsp = getRefSp();
 		System.out.println("centerPos=" + loc);
 		setCenterGenePos(loc);
-		CoreCluster centerClust = null;
-		if (!this.colorIslandMode) {
+
+		CoreCluster centerClust = this.mapViewer.getOption().getCmap().getClusterByPos(loc, genomeData);
+		if (centerClust != null) {
+			DomCluster dc = centerClust.getDomCluster(loc);
+			if (dc != null) {
+				String text = dc.dom.gene.sp + ":" + dc.dom.gene.name;
+				logger.info("domCluster=" + text);
+				this.mapViewer.getLocusInput().setText(text);
+			}
+		}
+/*		if (!this.colorIslandMode) {
 			centerClust = coreGenome.getClusterByPos(loc, genomeData);
 		} else {
 			centerClust = this.getIsland().getClusterByPos(loc, genomeData);
-		}
+		}*/
 		System.out.println("CLUST:" + centerClust.id());
 		if (centerClust != null) {
 			System.out.println("add=" + addFlag);
