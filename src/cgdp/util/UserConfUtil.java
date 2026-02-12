@@ -60,7 +60,7 @@ public class UserConfUtil {
 	 * @throws Exception 例外。
 	 */
 	private static void saveConfigMap(final Map<String, String> map) throws Exception {
-		String json = JSON.encode(map);
+		String json = JSON.encode(map, true);
 		String confFile = UserConfUtil.getConfFileName();
 		File f = new File(confFile);
 		if (!f.getParentFile().exists()) {
@@ -87,7 +87,7 @@ public class UserConfUtil {
 
 
 	/**
-	 * 設定値を保存する。
+	 * 設定値を取得する。
 	 * @param key 設定キー。
 	 * @return 値。
 	 * @throws Exception 例外。

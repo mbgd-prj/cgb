@@ -118,14 +118,14 @@ public class TaxFileOpenDialog extends JDialog {
 			this.typeButtonGroup = new ButtonGroup();
 			this.confFileRadioButton = new JRadioButton("Conf file");
 			this.confFileRadioButton.addActionListener((ActionEvent e) ->{
-				TaxFileOpenDialog.this.setButtonStatus();
+				TaxFileOpenDialog.this.setButtonStatus(false);
 			});
 			this.confFileRadioButton.setSelected(true);
 			this.confFileRadioButton.setBounds(117, ypos - 4, 87, 21);
 			this.contentPanel.add(this.confFileRadioButton);
 			this.dataDirectoryRadioButton = new JRadioButton("Data directory");
 			this.dataDirectoryRadioButton.addActionListener((ActionEvent e) ->{
-				TaxFileOpenDialog.this.setButtonStatus();
+				TaxFileOpenDialog.this.setButtonStatus(true);
 			});
 			this.dataDirectoryRadioButton.setBounds(300, ypos - 4, 141, 21);
 			this.contentPanel.add(this.dataDirectoryRadioButton);
@@ -368,8 +368,10 @@ public class TaxFileOpenDialog extends JDialog {
 
 	/**
 	 * ボタンの状態を設定します。
+	 * @param dirFlag データディレクトリを選択している場合true。
 	 */
-	private void setButtonStatus() {
+	private void setButtonStatus(boolean dirFlag) {
+		logger.debug("setButtonStatus: dirFlag=" + dirFlag);
 		this.coreButton.setEnabled(true);
 		this.geneButton.setEnabled(true);
 		this.islandButton.setEnabled(true);
@@ -377,6 +379,16 @@ public class TaxFileOpenDialog extends JDialog {
 		this.orderButton.setEnabled(true);
 		this.altnamesButton.setEnabled(true);
 		this.setIslandListButtonStatus();
+		if (dirFlag) {
+			try {
+				String dataPath = UserConfUtil.get(UserConfUtil.DATA_PATH);
+				logger.debug("read data directory: " + dataPath);
+				this.dataPathField.setText(dataPath);
+				this.readDataDirectory(dataPath);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 
 	/**
@@ -454,7 +466,7 @@ public class TaxFileOpenDialog extends JDialog {
 		this.dnaSeqFileField.setText(opt.getDnaSeqFile());
 		this.orderFileField.setText(opt.getOrderfile());
 		this.altnameFieldField.setText(opt.getAltNameFile());
-		this.setButtonStatus();
+		this.setButtonStatus(!opt.isConfFile());
 	}
 
 	/**

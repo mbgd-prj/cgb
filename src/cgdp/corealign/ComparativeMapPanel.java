@@ -12,6 +12,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URI;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -21,6 +22,9 @@ import javax.swing.JPopupMenu;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import cgdp.util.WebDBConfUtil;
+import cgdp.util.WebDBConfUtil.WebDB;
 
 /** Panel for drawing comparative map with mouse listener */
 public class ComparativeMapPanel extends JPanel implements MouseListener, KeyListener{
@@ -136,22 +140,11 @@ System.out.println("gene="+g);
 	}
 	void showGeneInfoPopupMenu(MouseEvent e, Gene gene) {
 		JPopupMenu popup = new JPopupMenu();
-
-		String geneURLString = "https://mbgd.nibb.ac.jp/htbin/MBGD_gene_info_frame.pl?name="
-				+ gene.getSpName();
 		MouseEvent mouseEvent = e;
 		logger.info("menu x=" + e.getX() + ", y=" + e.getY());
 		ActionListener al = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (((JMenuItem)e.getSource()).getName().equals("Browser")) {
-					System.out.println("Browser");
-					try {
-						URI uri = new URI(geneURLString);
-						Desktop desktop = Desktop.getDesktop();
-						desktop.browse(uri);
-					} catch (Exception ex) {
-					}
-				} else if (((JMenuItem)e.getSource()).getName().equals("Message")) {
+				if (((JMenuItem)e.getSource()).getName().equals("Message")) {
 					JFrame fr = new JFrame();
 					String geneInfo = gene.geneInfoString();
 					CoreCluster cc = drawer.coreGenome.getClusterByGene(
@@ -165,16 +158,45 @@ System.out.println("gene="+g);
 				}
 			}
 		};
-		JMenuItem browseWeb = new JMenuItem("Show info on web browser");
+
+		List<WebDB> list = WebDBConfUtil.getWebDBList();
+		for (WebDB webdb : list) {
+			JMenuItem webdbItem = new JMenuItem("Search on Web DB " + webdb.getName());
+			logger.debug("Adding webdb menu: " + webdb.getName());
+			webdbItem.setName("WebDB:" + webdb.getName());
+			webdbItem.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					this.showWebDB(gene, webdb);
+				}
+
+				private void showWebDB(final Gene gene, final WebDB webdb) {
+					String url = webdb.getUrl();
+					logger.debug("URL template: " + url);
+					if (gene == null) {
+						logger.debug("gene is null");
+						return;
+					}
+					logger.debug("gene: " + gene.toString());
+					url = url.replace("${sp}", gene.sp);
+					url = url.replace("${name}", gene.name);
+					try {
+						URI uri = new URI(url);
+						Desktop desktop = Desktop.getDesktop();
+						desktop.browse(uri);
+					} catch (Exception ex) {
+					}
+				}
+			});
+			popup.add(webdbItem);
+		}
+
 		JMenuItem messageBox = new JMenuItem("Show info on a message box");
 		JMenuItem selectCenter = new JMenuItem("Select inparalog");
-		browseWeb.setName("Browser");
 		messageBox.setName("Message");
 		selectCenter.setName("Center");
-		browseWeb.addActionListener(al);
 		messageBox.addActionListener(al);
 		selectCenter.addActionListener(al);
-		popup.add(browseWeb);
 		popup.add(messageBox);
 		popup.add(selectCenter);
 		popup.show(this, e.getX(), e.getY());

@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import cgdp.util.WebDBConfUtil;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -185,6 +186,7 @@ public class CompareMap {
 	public static void main(String Args[]) {
 //		GenomicLocus centerPos = null;
 //		ComparativeMapParams param = ComparativeMapParams.getInstance();
+		WebDBConfUtil.createDefaultWebDBConfFile();
 
 		CompareMap.option = new CompareMapOpt();
 		try {
