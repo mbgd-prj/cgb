@@ -31,6 +31,8 @@ import cgat.seq.FastaFile;
 import cgat.seq.IndexedFastaFile;
 import cgdp.corealign.GenomeData.GeneInfo;
 import cgdp.filereader.AnnotationFileReader;
+import cgdp.filereader.GeneSetFileReader;
+import cgdp.filereader.GeneSetFileReader.GeneSet;
 import cgdp.filereader.SegmentFileReader;
 import cgdp.filereader.SegmentFileReader.Segment;
 import lombok.Data;
@@ -85,6 +87,17 @@ public class CompareMapOpt {
 	 * 遺伝子集合ファイル。
 	 */
 	private List<String> geneSetFileList = null;
+
+	/**
+	 * 遺伝子集合リスト。
+	 */
+	private List<GeneSet> geneSetList = null;
+
+	/**
+	 * 遺伝子集合の色コードのマップ。
+	 */
+	private Map<String, String> geneSetColorMap = null;
+
 
 	/**
 	 * セグメントファイルリスト。
@@ -870,6 +883,24 @@ public class CompareMapOpt {
 	}
 
 	/**
+	 * 染色体名から染色体のSeqNoを取得する。
+	 * @param specics 生物種コード。
+	 * @param chrName 染色体名。
+	 * @return 染色体のSeqNo。見つからない場合は-1。
+	 */
+	private int getChromosomeSeqNo(String specics, String chrName) {
+		int ret = -1;
+		Genome genome = this.gdata.getGenome(specics);
+		for (Chromosome c: genome.chromosomes) {
+			if (chrName.equals(c.getName())) {
+				ret = c.getSeqNo();
+				break;
+			}
+		}
+		return ret;
+	}
+
+	/**
 	 * データ読み込み処理。
 	 * @throws Exception 例外。
 	 */
@@ -975,6 +1006,26 @@ public class CompareMapOpt {
 				this.segmentList.addAll(seglist);
 				this.segmentColorMap.putAll(reader.getColorMap());
 			}
+			for (Segment s: this.segmentList) {
+				int seqNo = this.getChromosomeSeqNo(s.getSpecies(), s.getChromosome());
+				s.setSeqNo(seqNo);
+			}
+//			logger.debug("segmentList=" + JSON.encode(this.segmentList, true));
+			logger.debug("segmentColorMap=" + JSON.encode(this.segmentColorMap, true));
+		}
+		// 遺伝子情報の読み込み処理。
+		this.geneSetList = new ArrayList<GeneSet>();
+		this.geneSetColorMap = new HashMap<>();
+		if (this.geneSetFileList != null) {
+			GeneSetFileReader reader = new GeneSetFileReader();
+			for (String geneSet: this.geneSetFileList) {
+				String fname = this.getFilePath(geneSet);
+				List<GeneSet> list = reader.readGeneSetFile(fname);
+				this.geneSetList.addAll(list);
+				this.geneSetColorMap.putAll(reader.getColorMap());
+			}
+//			logger.debug("geneSetList=" + JSON.encode(this.geneSetList, true));
+			logger.debug("geneSetColorMap=" + JSON.encode(this.geneSetColorMap, true));
 		}
 		logger.debug("--- readData finish. ---");
 	}

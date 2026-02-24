@@ -26,7 +26,7 @@ public class ColorFileReader {
 	 */
 	protected String[] getColor(final String line) {
 		String[] ret = null;
-		Pattern p = Pattern.compile("^###\\s*color:\\s*([^=]+)\\s*=\\s*(#[0-9A-Fa-f]{6})\\s*$");
+		Pattern p = Pattern.compile("^###\\s*color\\s*:\\s*([^=]+)\\s*=\\s*(#[0-9A-Fa-f]{6})\\s*$");
 		Matcher m = p.matcher(line);
 		if (m.find()) {
 			ret = new String[2];

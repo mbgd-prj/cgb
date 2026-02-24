@@ -26,6 +26,10 @@ public class SegmentFileReader extends ColorFileReader {
 		 */
 		private String chromosome;
 		/**
+		 * 染色体の連番。
+		 */
+		private int seqNo;
+		/**
 		 * 開始位置。
 		 */
 		private int start;
@@ -100,7 +104,8 @@ public class SegmentFileReader extends ColorFileReader {
 			if (colorCode != null) {
 				segment.setColorCode(colorCode);
 			} else {
-				colorMap.put(segment.getName(), null); // デフォルトは黒
+				segment.setColorCode(null);
+				colorMap.put(segment.getName(), null);
 			}
 		}
 		this.setColorMap(colorMap); // 色のマップをセット

@@ -21,8 +21,18 @@ public class GeneSetFileReader extends ColorFileReader {
 		private String species;
 		// ローカスタグ。
 		private String locus;
-		// グループ名。
-		private String groupName;
+		// グループ名リスト。
+		private List<String> nameList;
+		// 色リスト。
+		private List<String> colodList;
+
+		/**
+		 * コンストラクタ。
+		 */
+		public GeneSet() {
+			this.nameList = new java.util.ArrayList<>();
+			this.colodList = new java.util.ArrayList<>();
+		}
 	}
 
 	/**
@@ -51,11 +61,26 @@ public class GeneSetFileReader extends ColorFileReader {
 					GeneSet geneSet = new GeneSet();
 					geneSet.setSpecies(token[0]);
 					geneSet.setLocus(token[1]);
-					geneSet.setGroupName(token[2]);
+					for(int i = 2; i < token.length; i++) {
+						String name = token[i];
+						geneSet.getNameList().add(name);
+					}
 					geneSetList.add(geneSet);
 				}
 			}
 		}
+		for (GeneSet geneSet : geneSetList) {
+			for(String name : geneSet.getNameList()) {
+				String color = colorMap.get(name);
+				if (color != null) {
+					geneSet.getColodList().add(color);
+				} else {
+					geneSet.getColodList().add(null);
+					colorMap.put(name, null);
+				}
+			}
+		}
+		this.setColorMap(colorMap); // 色のマップをセット
 		return geneSetList; // 読み込んだ特徴領域のリストを返す
 	}
 
