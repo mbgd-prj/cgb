@@ -64,6 +64,22 @@ public class ConfFileUtil {
 	public static final String CHROM_GAP_LEN_RATIO = "chromGapLenRatio";
 
 	/**
+	 * Gene setのキー。
+	 */
+	public static final String GENESETFILE = "genesetfile";
+
+	/**
+	 * SegmentFileのキー。
+	 */
+	public static final String SEGMENTFILE = "senmentfile";
+
+	/**
+	 * AnnotationFileのキー。
+	 */
+	public static final String ANNOTATIONFILE = "annotationfile";
+
+
+	/**
 	 * コンストラクタ。
 	 */
 	private ConfFileUtil() {
@@ -134,6 +150,10 @@ public class ConfFileUtil {
 				ConfFileUtil.getValue(ORDERFILE, line, ret);
 				ConfFileUtil.getValue(ALTNAMEFILE, line, ret);
 				ConfFileUtil.getValue(CHROM_GAP_LEN_RATIO, line, ret);
+
+				ConfFileUtil.getList(GENESETFILE, line, ret);
+				ConfFileUtil.getList(SEGMENTFILE, line, ret);
+				ConfFileUtil.getList(ANNOTATIONFILE, line, ret);
 			}
 		}
 		return ret;
@@ -175,6 +195,30 @@ public class ConfFileUtil {
 				ret.put(ORDERFILE, name);
 			} else if (Pattern.matches(".*altnames$", name)) {
 				ret.put(ALTNAMEFILE, name);
+			} else if (Pattern.matches(".*gset$", name)) {
+				@SuppressWarnings("unchecked")
+				List<String> flist = (List<String>) ret.get(GENESETFILE);
+				if (flist == null) {
+					flist = new ArrayList<String>();
+				}
+				flist.add(name);
+				ret.put(GENESETFILE, flist);
+			} else if (Pattern.matches(".*seg$", name)) {
+				@SuppressWarnings("unchecked")
+				List<String> flist = (List<String>) ret.get(SEGMENTFILE);
+				if (flist == null) {
+					flist = new ArrayList<String>();
+				}
+				flist.add(name);
+				ret.put(SEGMENTFILE, flist);
+			} else if (Pattern.matches(".*ann$", name)) {
+				@SuppressWarnings("unchecked")
+				List<String> flist = (List<String>) ret.get(ANNOTATIONFILE);
+				if (flist == null) {
+					flist = new ArrayList<String>();
+				}
+				flist.add(name);
+				ret.put(ANNOTATIONFILE, flist);
 			}
 		}
 		return ret;

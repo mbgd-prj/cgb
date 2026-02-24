@@ -78,6 +78,21 @@ public class CompareMapOpt {
 	 */
 	private String dnaSeqFile = null;
 
+	/**
+	 * 遺伝子集合ファイル。
+	 */
+	private List<String> geneSetFileList = null;
+
+	/**
+	 * セグメントファイル。
+	 */
+	private List<String> segmentFileList = null;
+
+	/**
+	 * アノテーションファイル。
+	 */
+	private List<String> annotationFileList = null;
+
 	// 各種オプション。
 
 	/**
@@ -831,6 +846,27 @@ public class CompareMapOpt {
 	}
 
 	/**
+	 * アノテーションファイルを読み込みます。。
+	 * @param fname アノテーションファイル名。
+	 */
+	private void readAnnotationFile(String fname) throws Exception {
+		logger.debug("readAnnotationFile: fname=" + fname);
+		try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
+				if (line.length() == 0 || line.startsWith("#")) {
+					continue;
+				}
+				String[] token = line.split("\t");
+				if (token.length >= 2) {
+					this.anntationMap.put(token[0], token[1]);
+				}
+			}
+		}
+	}
+
+	/**
 	 * データ読み込み処理。
 	 * @throws Exception 例外。
 	 */
@@ -844,13 +880,12 @@ public class CompareMapOpt {
 		logger.debug("readData genefile=" + genefile);
 		if (genefile != null) {
 			String fname = this.getFilePath(genefile);
-			logger.info("*** genefile=" + genefile + " readed");
 			this.gdata = GenomeData.readFromDomClustGeneFile(fname);
-			logger.info("*** " + genefile + " readed");
-			logger.debug("readData corefile=" + this.getCorefile());
+			logger.info("*** genefile=" + fname + " readed");
 //			this.gdata.dump();
 			String coreFile = this.getFilePath(this.getCorefile());
 			CoreGenomeReader reader = new CoreGenomeReader(coreFile, gdata);
+			logger.debug("readData corefile=" + coreFile);
 			List<String> typeList = reader.getFileTypeList();
 			logger.info("fileTypeList=" + JSON.encode(typeList, true));
 			if (typeList.size() == 0) {
@@ -918,6 +953,12 @@ public class CompareMapOpt {
 			this.coreGenome = new CoreGenome();
 			this.gdata = GenomeData.getInstance();
 			this.cmap = new CompareMap(coreGenome, gdata);
+		}
+		if (this.annotationFileList != null) {
+			for (String ann: this.annotationFileList) {
+				String fname = this.getFilePath(ann);
+				this.readAnnotationFile(fname);
+			}
 		}
 		logger.debug("--- readData finish. ---");
 	}
@@ -1469,5 +1510,21 @@ public class CompareMapOpt {
 	public String getDefaultGroupDir() {
 		String fname = this.getFilePath(this.getCorefile());
 		return fname;
+	}
+
+
+	/**
+	 * アノテーションのマップ。
+	 */
+	private Map<String, String> anntationMap = new HashMap<String, String>();
+
+	/**
+	 * アノテーションを取得する。
+	 * @param spname 生物種名。
+	 * @return アノテーション。
+	 */
+	public String getAnnotation(final String clustid) {
+//		this.anntationMap.put("1234", "annotation for 1234");
+		return this.anntationMap.get(clustid);
 	}
 }

@@ -26,6 +26,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -85,11 +86,193 @@ public class TaxFileOpenDialog extends JDialog {
 	private JButton orderButton = null;
 	private JTextField altnameFieldField;
 	private JButton altnamesButton = null;
+	private JButton writeConfFileButton = null;
 
-	private JButton addOtherButton = null;
-	private JButton delOtherButton = null;
-	private DefaultListModel<String> otherListModel = null;
-	private JList<String> otherList = null;
+
+	/**
+	 * ファイルリストコンポーネント。
+	 */
+	private class FileListComponent {
+		/**
+		 * ラベル。
+		 */
+		private String label = null;
+		/**
+		 * ファイルの拡張子。
+		 */
+		private String ext = null;
+		/**
+		 * 追加ボタン。
+		 */
+		private JButton addButton = null;
+		/**
+		 * 削除ボタン。
+		 */
+		private JButton delButton = null;
+		/**
+		 * ファイルリストモデル。
+		 */
+		private DefaultListModel<String> fileListModel = null;
+		/**
+		 * ファイルリスト。
+		 */
+		private JList<String> fileList = null;
+
+		/**
+		 * コンストラクタ。
+		 * @param label ラベル。
+		 * @param ext ファイルの拡張子。
+		 */
+		public FileListComponent(String label, String ext) {
+			this.label = label;
+			this.ext = ext;
+		}
+
+		/**
+		 * ファイルを選択する。
+		 * @param list 選択したファイルを追加するリスト。
+		 * @param fileType ファイルタイプリスト。
+		 */
+		private void selectFile(final DefaultListModel<String> list, final String... fileType) {
+			String path = TaxFileOpenDialog.this.dataPathField.getText();
+			JFileChooser dlg = new JFileChooser(path);
+			String types = "";
+			for (String t: fileType) {
+				if (types.length() > 0) {
+					types += ", ";
+				}
+				types += "*." + t;
+			}
+			dlg.addChoosableFileFilter(new FileNameExtensionFilter("Status File(" + types + ")", fileType));
+			dlg.setAcceptAllFileFilterUsed(true);
+			dlg.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			int selected = dlg.showOpenDialog(TaxFileOpenDialog.this);
+			if (selected  == JFileChooser.APPROVE_OPTION) {
+				File f = dlg.getSelectedFile();
+				String parentPath = f.getParentFile().getAbsolutePath();
+				if (parentPath.equals(path)) {
+					list.addElement(f.getName());
+				} else {
+					list.addElement(f.getAbsolutePath());
+				}
+			}
+		}
+
+		/**
+		 * Otherファイルリストの操作ボタンの制御。
+		 */
+		private void setButtonStatus() {
+			this.addButton.setEnabled(true);
+			int[] sellist = this.fileList.getSelectedIndices();
+			if (sellist.length > 0) {
+				this.delButton.setEnabled(true);
+			} else {
+				this.delButton.setEnabled(false);
+			}
+		}
+
+		/**
+		 * Otherファイルリストを削除する。
+		 */
+		private void deleteIslandFile() {
+			int[] sellist = this.fileList.getSelectedIndices();
+			List<String> list = new ArrayList<String>();
+			for (int idx: sellist) {
+				logger.debug("selidx=" + idx);
+				String name = this.fileListModel.get(idx);
+				list.add(name);
+			}
+			for (String name: list) {
+				this.fileListModel.removeElement(name);
+			}
+		}
+
+		/**
+		 * コンポーネントを配置する。
+		 * @param ypos 配置するy座標。
+		 * @return 次の配置に使用するy座標。
+		 */
+		public int addComponent(int ypos) {
+			JLabel lblNewLabel = new JLabel(this.label);
+			lblNewLabel.setBounds(12, ypos, 108, 13);
+			TaxFileOpenDialog.this.contentPanel.add(lblNewLabel);
+			JScrollPane scrollPane = new JScrollPane();
+			scrollPane.setBounds(117, ypos - 4, 377, 62);
+			TaxFileOpenDialog.this.contentPanel.add(scrollPane);
+			this.fileListModel = new DefaultListModel<String>();
+			this.fileList = new JList<String>(this.fileListModel);
+			// ファイルリストの選択イベント
+			// ボタンのDisable/Enableを切り替える。
+			this.fileList.addListSelectionListener((ListSelectionEvent e) -> {
+				this.setButtonStatus();
+			});
+			scrollPane.setViewportView(this.fileList);
+			this.addButton = new JButton("+");
+			this.addButton.addActionListener((ActionEvent e) -> {
+				logger.debug("addFileButton");
+				this.selectFile(this.fileListModel, this.ext);
+			});
+			this.addButton.setBounds(506, ypos - 4, SELECT_BUTTON_WIDTH, SELECT_BUTTON_HEIGHT);
+			TaxFileOpenDialog.this.contentPanel.add(this.addButton);
+
+			this.delButton = new JButton("-");
+			this.delButton.addActionListener((ActionEvent e) -> {
+				logger.debug("delFileButton");
+				this.deleteIslandFile();
+			});
+			this.delButton.setBounds(506, ypos - 4 + ROW_HEIGHT, SELECT_BUTTON_WIDTH, SELECT_BUTTON_HEIGHT);
+			TaxFileOpenDialog.this.contentPanel.add(this.delButton);
+			// 最初は削除ボタンは無効にする。
+			this.setButtonStatus();
+
+			return ypos + 68;
+		}
+
+		/**
+		 * ファイルリストを設定する。
+		 * @param fileList ファイルリスト。
+		 */
+		public void setFileList(final List<String> fileList) {
+			this.fileListModel.clear();
+			if (fileList != null) {
+				for (String file: fileList) {
+					this.fileListModel.addElement(file);
+				}
+			}
+		}
+
+		/**
+		 * ファイルリストを取得する。
+		 * @return ファイルリスト。
+		 */
+		public List<String> getFileList() {
+			List<String> list = new ArrayList<String>();
+			for (int i = 0; i < this.fileListModel.size(); i++) {
+				String file = this.fileListModel.get(i);
+				list.add(file);
+			}
+			return list;
+		}
+	}
+
+	/**
+	 * その他ファイルコンポーネント。
+	 */
+	private FileListComponent otherComponent = null;
+	/**
+	 * 遺伝子集合ファイルコンポーネント。
+	 */
+	private FileListComponent geneSetComponent = null;
+	/**
+	 * 特徴領域ファイルコンポーネント。
+	 */
+	private FileListComponent segmentComponent = null;
+	/**
+	 * アノテーションファイルコンポーネント。
+	 */
+	private FileListComponent annotationComponent = null;
+
+
 
 	/**
 	 * Viewer。
@@ -104,7 +287,7 @@ public class TaxFileOpenDialog extends JDialog {
 		setTitle("Open input files");
 		this.viewer = viewer;
 
-		this.setBounds(100, 100, 580, 400);
+		this.setBounds(100, 100, 580, 568);
 		this.getContentPane().setLayout(new BorderLayout());
 		this.contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.getContentPane().add(this.contentPanel, BorderLayout.CENTER);
@@ -194,37 +377,9 @@ public class TaxFileOpenDialog extends JDialog {
 		}
 		ypos += ROW_HEIGHT;
 		{
-			JLabel lblNewLabel_12 = new JLabel("Othor :");
-			lblNewLabel_12.setBounds(12, ypos, 108, 13);
-			this.contentPanel.add(lblNewLabel_12);
-			JScrollPane scrollPane = new JScrollPane();
-			scrollPane.setBounds(117, ypos - 4, 377, 100);
-			contentPanel.add(scrollPane);
-			TaxFileOpenDialog.this.otherListModel = new DefaultListModel<String>();
-			TaxFileOpenDialog.this.otherList = new JList<String>(TaxFileOpenDialog.this.otherListModel);
-			this.otherList.addListSelectionListener((ListSelectionEvent e) -> {
-				TaxFileOpenDialog.this.setIslandListButtonStatus();
-			});
-			scrollPane.setViewportView(TaxFileOpenDialog.this.otherList);
-
-			this.addOtherButton = new JButton("+");
-			this.addOtherButton.addActionListener((ActionEvent e) -> {
-				logger.debug("addIslandButton");
-				TaxFileOpenDialog.this.selectFile(TaxFileOpenDialog.this.otherListModel, "other");
-			});
-			this.addOtherButton.setBounds(506, ypos - 4, SELECT_BUTTON_WIDTH, SELECT_BUTTON_HEIGHT);
-			contentPanel.add(this.addOtherButton);
-
-			this.delOtherButton = new JButton("-");
-			this.delOtherButton.addActionListener((ActionEvent e) -> {
-				logger.debug("delIslandButton");
-				TaxFileOpenDialog.this.deleteIslandFile();
-			});
-			ypos += ROW_HEIGHT;
-			this.delOtherButton.setBounds(506, ypos - 4, SELECT_BUTTON_WIDTH, SELECT_BUTTON_HEIGHT);
-			contentPanel.add(this.delOtherButton);
+			this.otherComponent = new FileListComponent("Other :", "other");
+			ypos = this.otherComponent.addComponent(ypos);
 		}
-		ypos += 80;
 		{
 			JLabel ganeLabel = new JLabel("Gene :");
 			ganeLabel.setBounds(12, ypos, 50, 13);
@@ -296,10 +451,101 @@ public class TaxFileOpenDialog extends JDialog {
 			this.altnamesButton.setEnabled(false);
 			this.contentPanel.add(this.altnamesButton);
 		}
-
+		ypos += ROW_HEIGHT;
+		{
+			this.geneSetComponent = new FileListComponent("Gene set :", "gset");
+			ypos = this.geneSetComponent.addComponent(ypos);
+		}
+		{
+			this.segmentComponent = new FileListComponent("Segment :", "seg");
+			ypos = this.segmentComponent.addComponent(ypos);
+		}
+		{
+			this.annotationComponent = new FileListComponent("Annotation :", "ann");
+			ypos = this.annotationComponent.addComponent(ypos);
+		}
 		this.addButtonPane();
-		this.setIslandListButtonStatus();
+		// this.setIslandListButtonStatus();
 	}
+
+	/**
+	 * ファイルのパスを取得します。
+	 * @param parentPath データディレクトリのパス。
+	 * @param file ファイルのパス。
+	 * @return	fileが絶対パスの場合そのまま返します。fileが相対パスの場合、parentPathとfileを結合したパスを返します。
+	 */
+	private String getFilePath(String parentPath, String file) {
+		logger.debug("getFilePath: parentPath=" + parentPath + ", file=" + file);
+		File f = new File(file);
+		if (f.isAbsolute()) {
+			return file;
+		} else {
+			File parentDir = new File(parentPath);
+			return  parentDir.getName() + File.separator + file;
+		}
+	}
+
+	/**
+	 * conffileを作成します。
+	 * @throws Exception 例外。
+	 */
+	private void writeConfFile() throws Exception {
+		String path = this.dataPathField.getText();
+		logger.debug("path=" + path);
+		File dir = new File(path);
+		String name = path; // dir.getName();
+		File pdir = dir.getParentFile();
+		String conffile = pdir.getAbsolutePath() + File.separator + "conffile." + dir.getName();
+		logger.debug("conffile=" + conffile);
+		String corefile = this.coreFileField.getText();
+		String islandFile = this.islandFileField.getText();
+		List<String> otherFileList = this.otherComponent.getFileList();
+		String geneFile = this.geneFileField.getText();
+		String dnaSeqFile = this.dnaSeqFileField.getText();
+		String orderFile = this.orderFileField.getText();
+		String altNameFile = this.altnameFieldField.getText();
+		List<String> geneSetFileList = this.geneSetComponent.getFileList();
+		List<String> segmentFileList = this.segmentComponent.getFileList();
+		List<String> annotationFileList = this.annotationComponent.getFileList();
+		StringBuilder sb = new StringBuilder();
+		if (StringUtils.isNotEmpty(corefile)) {
+			sb.append(ConfFileUtil.COREFILE + "=" + this.getFilePath(name, corefile) + "\n");
+		}
+		if (StringUtils.isNotEmpty(geneFile)) {
+			sb.append(ConfFileUtil.GENEFILE + "=" + this.getFilePath(name, geneFile) + "\n");
+		}
+		if (StringUtils.isNotEmpty(islandFile)) {
+			sb.append(ConfFileUtil.ISLFILE + "=" + this.getFilePath(name, islandFile) + "\n");
+		}
+		for (String otherFile: otherFileList) {
+			sb.append(ConfFileUtil.OTHERFILE + "=" + this.getFilePath(name, otherFile) + "\n");
+		}
+		if (StringUtils.isNotEmpty(dnaSeqFile)) {
+			sb.append(ConfFileUtil.SEQFILE + "=" + this.getFilePath(name, dnaSeqFile) + "\n");
+		}
+		if (StringUtils.isNotEmpty(orderFile)) {
+			sb.append(ConfFileUtil.ORDERFILE + "=" + this.getFilePath(name, orderFile) + "\n");
+		}
+		if (StringUtils.isNotEmpty(altNameFile)) {
+			sb.append(ConfFileUtil.ALTNAMEFILE + "=" + this.getFilePath(name, altNameFile) + "\n");
+		}
+		for (String geneSetFile: geneSetFileList) {
+			sb.append(ConfFileUtil.GENESETFILE +"=" + this.getFilePath(name, geneSetFile) + "\n");
+		}
+		for (String segmentFile: segmentFileList) {
+			sb.append(ConfFileUtil.SEGMENTFILE + "=" + this.getFilePath(name, segmentFile) + "\n");
+		}
+		for (String annotationFile: annotationFileList) {
+			sb.append(ConfFileUtil.ANNOTATIONFILE + "=" + this.getFilePath(name, annotationFile) + "\n");
+		}
+		logger.debug("conffile=\n" + sb.toString());
+
+		File f = new File(conffile);
+		try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(f))) {
+			bw.write(sb.toString());
+		}
+	}
+
 
 	/**
 	 * OK/Cancelボタンを配置する。
@@ -308,6 +554,21 @@ public class TaxFileOpenDialog extends JDialog {
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		getContentPane().add(buttonPane, BorderLayout.SOUTH);
+		{
+			writeConfFileButton = new JButton("Write conf file");
+			writeConfFileButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					try {
+						TaxFileOpenDialog.this.writeConfFile();
+					} catch (Exception ex) {
+						logger.error(ex.getMessage(), ex);
+					}
+				}
+			});
+			writeConfFileButton.setActionCommand("WriteConfFile");
+			buttonPane.add(writeConfFileButton);
+
+		}
 		{
 			JButton okButton = new JButton("OK");
 			okButton.addActionListener(new ActionListener() {
@@ -338,35 +599,6 @@ public class TaxFileOpenDialog extends JDialog {
 	}
 
 	/**
-	 * Otherファイルリストの操作ボタンの制御。
-	 */
-	private void setIslandListButtonStatus() {
-		this.addOtherButton.setEnabled(true);
-		int[] sellist = this.otherList.getSelectedIndices();
-		if (sellist.length > 0) {
-			this.delOtherButton.setEnabled(true);
-		} else {
-			this.delOtherButton.setEnabled(false);
-		}
-	}
-
-	/**
-	 * Otherファイルリストを削除する。
-	 */
-	private void deleteIslandFile() {
-		int[] sellist = this.otherList.getSelectedIndices();
-		List<String> list = new ArrayList<String>();
-		for (int idx: sellist) {
-			logger.debug("selidx=" + idx);
-			String name = this.otherListModel.get(idx);
-			list.add(name);
-		}
-		for (String name: list) {
-			this.otherListModel.removeElement(name);
-		}
-	}
-
-	/**
 	 * ボタンの状態を設定します。
 	 * @param dirFlag データディレクトリを選択している場合true。
 	 */
@@ -378,7 +610,7 @@ public class TaxFileOpenDialog extends JDialog {
 		this.dnaSeqButton.setEnabled(true);
 		this.orderButton.setEnabled(true);
 		this.altnamesButton.setEnabled(true);
-		this.setIslandListButtonStatus();
+//		this.setIslandListButtonStatus();
 		if (dirFlag) {
 			try {
 				String dataPath = UserConfUtil.get(UserConfUtil.DATA_PATH);
@@ -388,6 +620,9 @@ public class TaxFileOpenDialog extends JDialog {
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
+			this.writeConfFileButton.setEnabled(true);
+		} else {
+			this.writeConfFileButton.setEnabled(false);
 		}
 	}
 
@@ -417,33 +652,11 @@ public class TaxFileOpenDialog extends JDialog {
 	}
 
 	/**
-	 * ファイルを選択する。
-	 * @param list 選択したファイルを追加するリスト。
-	 * @param fileType ファイルタイプリスト。
-	 */
-	private void selectFile(final DefaultListModel<String> list, final String... fileType) {
-		String path = this.dataPathField.getText();
-		JFileChooser dlg = new JFileChooser(path);
-		String types = "";
-		for (String t: fileType) {
-			if (types.length() > 0) {
-				types += ", ";
-			}
-			types += "*." + t;
-		}
-		dlg.addChoosableFileFilter(new FileNameExtensionFilter("Status File(" + types + ")", fileType));
-		dlg.setAcceptAllFileFilterUsed(true);
-		dlg.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		int selected = dlg.showOpenDialog(this);
-		if (selected  == JFileChooser.APPROVE_OPTION) {
-			File f = dlg.getSelectedFile();
-			list.addElement(f.getAbsolutePath());
-		}
-	}
-
-
-	/**
 	 * オプションの値を設定する。
+	 * <pre>
+	 * 読み込んでいるファイル情報をダイアログに転記します。
+	 * </pre>
+	 * @throws Exception 例外。
 	 */
 	public void setOption() throws Exception {
 		CompareMapOpt opt = this.viewer.getOption();
@@ -457,15 +670,15 @@ public class TaxFileOpenDialog extends JDialog {
 		this.coreFileField.setText(opt.getCorefile());
 		this.geneFileField.setText(opt.getGenefile());
 		this.islandFileField.setText(opt.getIslandFile());
-		this.otherListModel.clear();
-		if (opt.getOtherFileList() != null) {
-			for (String islandFile: opt.getOtherFileList()) {
-				this.otherListModel.addElement(islandFile);
-			}
-		}
+		this.otherComponent.setFileList(opt.getOtherFileList());
 		this.dnaSeqFileField.setText(opt.getDnaSeqFile());
 		this.orderFileField.setText(opt.getOrderfile());
 		this.altnameFieldField.setText(opt.getAltNameFile());
+
+		this.geneSetComponent.setFileList(opt.getGeneSetFileList());
+		this.segmentComponent.setFileList(opt.getSegmentFileList());
+		this.annotationComponent.setFileList(opt.getAnnotationFileList());
+
 		this.setButtonStatus(!opt.isConfFile());
 	}
 
@@ -484,6 +697,10 @@ public class TaxFileOpenDialog extends JDialog {
 
 	/**
 	 * optionの値を取得する。
+	 * <pre>
+	 * ダイアログの内容をoptionに転記します。
+	 * </pre>
+	 *
 	 * @return option.
 	 */
 	private CompareMapOpt getOpt() {
@@ -500,11 +717,11 @@ public class TaxFileOpenDialog extends JDialog {
 		opt.setDnaSeqFile(this.getText(this.dnaSeqFileField));
 		opt.setOrderfile(this.getText(this.orderFileField));
 		opt.setAltNameFile(this.getText(this.altnameFieldField));
-		for (int i = 0; i < this.otherListModel.size(); i++) {
-			String otherFile = this.otherListModel.get(i);
-			logger.debug("otherFlle=" + otherFile);
-			opt.addOtherFileName(otherFile);
-		}
+		opt.setOtherFileList(this.otherComponent.getFileList());
+		opt.setGeneSetFileList(this.geneSetComponent.getFileList());
+		opt.setSegmentFileList(this.segmentComponent.getFileList());
+		opt.setAnnotationFileList(this.annotationComponent.getFileList());
+
 		opt.dump();
 
 		return opt;
@@ -617,13 +834,25 @@ public class TaxFileOpenDialog extends JDialog {
 		this.islandFileField.setText((String) conf.get(ConfFileUtil.ISLFILE));
 		this.orderFileField.setText((String) conf.get(ConfFileUtil.ORDERFILE));
 		this.altnameFieldField.setText((String) conf.get(ConfFileUtil.ALTNAMEFILE));
-		@SuppressWarnings("unchecked")
-		List<String> otherList = (List<String>) conf.get(ConfFileUtil.OTHERFILE);
-		this.otherListModel.clear();
-		if (otherList != null) {
-			for (String islfile: otherList) {
-				this.otherListModel.addElement(islfile);
-			}
+		{
+			@SuppressWarnings("unchecked")
+			List<String> otherList = (List<String>) conf.get(ConfFileUtil.OTHERFILE);
+			this.otherComponent.setFileList(otherList);
+		}
+		{
+			@SuppressWarnings("unchecked")
+			List<String> geneSetList = (List<String>) conf.get(ConfFileUtil.GENESETFILE);
+			this.geneSetComponent.setFileList(geneSetList);
+		}
+		{
+			@SuppressWarnings("unchecked")
+			List<String> segmentList = (List<String>) conf.get(ConfFileUtil.SEGMENTFILE);
+			this.segmentComponent.setFileList(segmentList);
+		}
+		{
+			@SuppressWarnings("unchecked")
+			List<String> annotationList = (List<String>) conf.get(ConfFileUtil.ANNOTATIONFILE);
+			this.annotationComponent.setFileList(annotationList);
 		}
 	}
 
@@ -645,6 +874,7 @@ public class TaxFileOpenDialog extends JDialog {
 	 */
 	private void readDataDirectory(final String path) throws Exception {
 		Map<String, Object> conf = ConfFileUtil.readDataDirectory(path);
+		logger.debug("conf=" + conf);
 		this.setConfMap(conf);
 	}
 }

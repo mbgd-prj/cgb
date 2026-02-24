@@ -139,6 +139,8 @@ System.out.println("gene="+g);
 	public void mouseExited(MouseEvent e) {
 	}
 	void showGeneInfoPopupMenu(MouseEvent e, Gene gene) {
+		CompareMapOpt opt = this.drawer.mapViewer.getOption();
+
 		JPopupMenu popup = new JPopupMenu();
 		MouseEvent mouseEvent = e;
 		logger.info("menu x=" + e.getX() + ", y=" + e.getY());
@@ -147,11 +149,15 @@ System.out.println("gene="+g);
 				if (((JMenuItem)e.getSource()).getName().equals("Message")) {
 					JFrame fr = new JFrame();
 					String geneInfo = gene.geneInfoString();
-					CoreCluster cc = drawer.coreGenome.getClusterByGene(
-						gene.getSpName());
+					CoreCluster cc = drawer.coreGenome.getClusterByGene(gene.getSpName());
 					if (cc != null) {
 						String clusterInfo = cc.clusterInfoString();
-						JOptionPane.showMessageDialog(fr, clusterInfo+geneInfo);
+						logger.debug("clusterId=" + cc.id());
+						String ann = opt.getAnnotation(cc.id());
+						if (ann != null) {
+							geneInfo += "Annotation: " + ann + "\n";
+						}
+						JOptionPane.showMessageDialog(fr, clusterInfo + geneInfo);
 					}
 				} else if (((JMenuItem)e.getSource()).getName().equals("Center")) {
 					ComparativeMapPanel.this.drawer.selectCenter(mouseEvent);
