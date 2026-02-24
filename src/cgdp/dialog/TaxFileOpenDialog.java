@@ -453,7 +453,7 @@ public class TaxFileOpenDialog extends JDialog {
 		}
 		ypos += ROW_HEIGHT;
 		{
-			this.geneSetComponent = new FileListComponent("Gene set :", "gset");
+			this.geneSetComponent = new FileListComponent("Gene set :", "genes");
 			ypos = this.geneSetComponent.addComponent(ypos);
 		}
 		{

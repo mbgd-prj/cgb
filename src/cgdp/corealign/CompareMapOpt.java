@@ -30,6 +30,9 @@ import cgat.seq.DNASequence;
 import cgat.seq.FastaFile;
 import cgat.seq.IndexedFastaFile;
 import cgdp.corealign.GenomeData.GeneInfo;
+import cgdp.filereader.AnnotationFileReader;
+import cgdp.filereader.SegmentFileReader;
+import cgdp.filereader.SegmentFileReader.Segment;
 import lombok.Data;
 import net.arnx.jsonic.JSON;
 
@@ -84,9 +87,20 @@ public class CompareMapOpt {
 	private List<String> geneSetFileList = null;
 
 	/**
-	 * セグメントファイル。
+	 * セグメントファイルリスト。
 	 */
 	private List<String> segmentFileList = null;
+
+
+	/**
+	 * セグメントリスト。
+	 */
+	private List<Segment> segmentList = null;
+
+	/**
+	 * セグメントの色コードのマップ。
+	 */
+	private Map<String, String> segmentColorMap = null;
 
 	/**
 	 * アノテーションファイル。
@@ -850,20 +864,9 @@ public class CompareMapOpt {
 	 * @param fname アノテーションファイル名。
 	 */
 	private void readAnnotationFile(String fname) throws Exception {
-		logger.debug("readAnnotationFile: fname=" + fname);
-		try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				line = line.trim();
-				if (line.length() == 0 || line.startsWith("#")) {
-					continue;
-				}
-				String[] token = line.split("\t");
-				if (token.length >= 2) {
-					this.anntationMap.put(token[0], token[1]);
-				}
-			}
-		}
+
+		AnnotationFileReader reader = new AnnotationFileReader();
+		this.anntationMap = reader.readAnnotationFile(fname);
 	}
 
 	/**
@@ -954,10 +957,23 @@ public class CompareMapOpt {
 			this.gdata = GenomeData.getInstance();
 			this.cmap = new CompareMap(coreGenome, gdata);
 		}
+		// アノテーションファイルの読み込み
 		if (this.annotationFileList != null) {
 			for (String ann: this.annotationFileList) {
 				String fname = this.getFilePath(ann);
 				this.readAnnotationFile(fname);
+			}
+		}
+		// セグメントファイルの読み込み
+		this.segmentList = new ArrayList<Segment>();
+		this.segmentColorMap = new HashMap<>();
+		if (this.segmentFileList != null) {
+			SegmentFileReader reader = new SegmentFileReader();
+			for (String seg: this.segmentFileList) {
+				String fname = this.getFilePath(seg);
+				List<Segment> seglist = reader.readSegmentFile(fname);
+				this.segmentList.addAll(seglist);
+				this.segmentColorMap.putAll(reader.getColorMap());
 			}
 		}
 		logger.debug("--- readData finish. ---");
@@ -1512,7 +1528,6 @@ public class CompareMapOpt {
 		return fname;
 	}
 
-
 	/**
 	 * アノテーションのマップ。
 	 */
@@ -1524,7 +1539,8 @@ public class CompareMapOpt {
 	 * @return アノテーション。
 	 */
 	public String getAnnotation(final String clustid) {
-//		this.anntationMap.put("1234", "annotation for 1234");
 		return this.anntationMap.get(clustid);
 	}
+
+
 }

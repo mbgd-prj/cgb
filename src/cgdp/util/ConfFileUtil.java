@@ -195,7 +195,7 @@ public class ConfFileUtil {
 				ret.put(ORDERFILE, name);
 			} else if (Pattern.matches(".*altnames$", name)) {
 				ret.put(ALTNAMEFILE, name);
-			} else if (Pattern.matches(".*gset$", name)) {
+			} else if (Pattern.matches(".*genes$", name)) {
 				@SuppressWarnings("unchecked")
 				List<String> flist = (List<String>) ret.get(GENESETFILE);
 				if (flist == null) {
