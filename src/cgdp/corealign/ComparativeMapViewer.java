@@ -53,6 +53,7 @@ import cgdp.dialog.ClusterGroupListDialog;
 import cgdp.dialog.SearchGenomeSequenceDialog;
 import cgdp.dialog.SearchNameDialog;
 import cgdp.dialog.SelectInparalogDialog;
+import cgdp.dialog.SelectSegmentDialog;
 import cgdp.dialog.SpSequenceDialog;
 import cgdp.dialog.TaxFileOpenDialog;
 import cgdp.dialog.ViewOptionDialog;
@@ -122,6 +123,10 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 	private JMenuItem viewSetting = null;
 	// 中心の選択。
 	private JMenuItem selectInparalog = null;
+	// 遺伝子集合の選択。
+	private JMenuItem selectGeneSet = null;
+	// 特徴領域の選択。
+	private JMenuItem selectSegment = null;
 
 
 	// 検索メニュー
@@ -456,19 +461,23 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 		this.viewMenu.add(this.viewOption = new JMenuItem("View option ..."));
 		this.viewMenu.add(this.viewSetting = new JMenuItem("Visible genome selection ..."));
 		this.viewMenu.add(this.selectInparalog = new JMenuItem("Select inparalog ..."));
+		this.viewMenu.add(this.selectGeneSet = new JMenuItem("Select gene set ..."));
+		this.viewMenu.add(this.selectSegment = new JMenuItem("Select segment ..."));
 
 		this.setWriteFileEnabled(this.viewSequence);
 		this.setWriteFileEnabled(this.viewOption);
 		this.setWriteFileEnabled(this.viewSetting);
 		this.setSelectCeterEnabled(this.selectInparalog);
+		this.setWriteFileEnabled(this.viewSetting);
+		this.setWriteFileEnabled(this.viewSetting);
 
 
 		// 検索メニュー
 		this.menuBar.add(this.searchMenu = new JMenu("Search"));
 		this.searchMenu.add(this.searchName = new JMenuItem("Search gene"));
 		this.searchMenu.add(this.searchSequence = new JMenuItem("Search genome sequence"));
-		this.setWriteFileEnabled(this.searchName);
-		this.setWriteFileEnabled(this.searchSequence);
+		this.setWriteFileEnabled(this.selectGeneSet);
+		this.setWriteFileEnabled(this.selectSegment);
 
 		this.setJMenuBar(this.menuBar);
 
@@ -569,6 +578,13 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 			logger.debug("selectCenter");
 			this.selectInparalog();
 		});
+		this.selectGeneSet.addActionListener((ActionEvent e) -> {
+			logger.debug("selectGeneSet");
+//			this.selectInparalog();
+		});
+		this.selectSegment.addActionListener((ActionEvent e) -> {
+			this.selectSegment();
+		});
 
 
 		this.searchName.addActionListener((ActionEvent e) -> {
@@ -579,9 +595,21 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 			logger.debug("Search genome sequence");
 			this.searchGenomeSequence();
 		});
-
 	}
 
+	/**
+	 * 	表示する特徴領域の選択。
+	 */
+	private void selectSegment() {
+		logger.debug("selectSegment");
+		SelectSegmentDialog dlg = new SelectSegmentDialog(this);
+		dlg.setModal(true);
+		dlg.setVisible(true);
+	}
+
+	/**
+	 * クラスタグループの編集。
+	 */
 	/**
 	 * GraphicalOutputの起動。
 	 */

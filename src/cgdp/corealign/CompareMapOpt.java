@@ -435,6 +435,32 @@ public class CompareMapOpt {
 	}
 
 	/**
+	 * 遺伝子グループ、特徴領域の色グループ。
+	 */
+	@Data
+	public static class ColorGroup {
+		/**
+		 * 表示フラグ。
+		 */
+		private Boolean visible;
+		/**
+		 * 名称。
+		 */
+		private String name;
+		/**
+		 * 色コード。
+		 */
+		private String color;
+
+		public ColorGroup(final boolean visible, final String name, final String color) {
+			this.visible = visible;
+			this.name = name;
+			this.color = color;
+		}
+	}
+
+
+	/**
 	 * クラスタグループリスト。
 	 */
 	private List<ClusterGroup> clusterGroupList = null;
@@ -1594,4 +1620,26 @@ public class CompareMapOpt {
 	}
 
 
+	/**
+	 * セグメントの配色グループリストを取得します。
+	 */
+	public List<ColorGroup> getSegmentColorGroupList() {
+		List<ColorGroup> ret = new ArrayList<>();
+		if (this.segmentColorMap != null) {
+			for (String name: this.segmentColorMap.keySet()) {
+				String color = this.segmentColorMap.get(name);
+				ColorGroup cg = new ColorGroup(false, name, color);
+				ret.add(cg);
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * セグメントのリストを取得します。
+	 * @return セグメントのリスト。
+	 */
+	public List<Segment> getSegmentList() {
+		return segmentList;
+	}
 }
