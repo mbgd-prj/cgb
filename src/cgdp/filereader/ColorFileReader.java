@@ -30,8 +30,8 @@ public class ColorFileReader {
 		Matcher m = p.matcher(line);
 		if (m.find()) {
 			ret = new String[2];
-			ret[0] = m.group(1);
-			ret[1] = m.group(2);
+			ret[0] = m.group(1).trim();
+			ret[1] = m.group(2).trim();
 		}
 		return ret;
 	}

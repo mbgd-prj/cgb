@@ -33,6 +33,20 @@ public class GeneSetFileReader extends ColorFileReader {
 			this.nameList = new java.util.ArrayList<>();
 			this.colodList = new java.util.ArrayList<>();
 		}
+
+		/**
+		 * 指定のグループ名に該当するかどうかをチェックする。
+		 * @param name グループ名。
+		 * @return 該当する場合はtrue、そうでない場合はfalse。
+		 */
+		public boolean checkName(String name) {
+			for(String n : this.nameList) {
+				if (n.equals(name)) {
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
 	/**
@@ -59,10 +73,10 @@ public class GeneSetFileReader extends ColorFileReader {
 				String[] token = line.split("[\t:]");
 				if (token.length >= 3) {
 					GeneSet geneSet = new GeneSet();
-					geneSet.setSpecies(token[0]);
-					geneSet.setLocus(token[1]);
+					geneSet.setSpecies(token[0].trim());
+					geneSet.setLocus(token[1].trim());
 					for(int i = 2; i < token.length; i++) {
-						String name = token[i];
+						String name = token[i].trim();
 						geneSet.getNameList().add(name);
 					}
 					geneSetList.add(geneSet);

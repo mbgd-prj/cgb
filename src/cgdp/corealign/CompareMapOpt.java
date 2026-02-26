@@ -96,8 +96,12 @@ public class CompareMapOpt {
 	/**
 	 * 遺伝子集合の色コードのマップ。
 	 */
-	private Map<String, String> geneSetColorMap = null;
+//	private Map<String, String> geneSetColorMap = null;
 
+	/**
+	 * 遺伝子集合の色グループリスト。
+	 */
+	private List<ColorGroup> geneSetColorGroupList = null;
 
 	/**
 	 * セグメントファイルリスト。
@@ -1079,17 +1083,18 @@ public class CompareMapOpt {
 		}
 		// 遺伝子情報の読み込み処理。
 		this.geneSetList = new ArrayList<GeneSet>();
-		this.geneSetColorMap = new HashMap<>();
+		Map<String, String> geneSetColorMap = new HashMap<>();
 		if (this.geneSetFileList != null) {
 			GeneSetFileReader reader = new GeneSetFileReader();
 			for (String geneSet: this.geneSetFileList) {
 				String fname = this.getFilePath(geneSet);
 				List<GeneSet> list = reader.readGeneSetFile(fname);
 				this.geneSetList.addAll(list);
-				this.geneSetColorMap.putAll(reader.getColorMap());
+				geneSetColorMap.putAll(reader.getColorMap());
 			}
+			this.geneSetColorGroupList = this.getColorGroupList(geneSetColorMap);
 //			logger.debug("geneSetList=" + JSON.encode(this.geneSetList, true));
-			logger.debug("geneSetColorMap=" + JSON.encode(this.geneSetColorMap, true));
+//			logger.debug("geneSetColorMap=" + JSON.encode(this.geneSetColorMap, true));
 		}
 		logger.debug("--- readData finish. ---");
 	}
@@ -1658,11 +1663,24 @@ public class CompareMapOpt {
 	}
 
 	/**
-	 * セグメントのリストを取得します。
-	 * @return セグメントのリスト。
+	 * 遺伝子集合リストを取得します。
+	 * @param glist 配色グループリスト。
+	 * @return 遺伝子集合リスト。
 	 */
-	public List<Segment> getSegmentList() {
-		return segmentList;
+	public List<GeneSet> getGeneSetList(final List<ColorGroup> glist) {
+		List<GeneSet> slist = this.getGeneSetList();
+		List<GeneSet> list = new ArrayList<>();
+		for (ColorGroup g : glist) {
+			if (g.getVisible()) {
+				String name = g.getName();
+				for (GeneSet s : slist) {
+					if (s.checkName(name)) {
+						list.add(s);
+					}
+				}
+			}
+		}
+		return list;
 	}
 
 	/**

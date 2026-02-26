@@ -42,7 +42,7 @@ public class SelectSegmentDialog extends JDialog {
 	/**
 	 * 特徴領域メンバーテーブルモデル。
 	 */
-	private class MemberTableModel extends UserTableModel<Segment> {
+	private class SegmentTableModel extends UserTableModel<Segment> {
 		/**
 		 *
 		 */
@@ -52,7 +52,7 @@ public class SelectSegmentDialog extends JDialog {
 		 * コンストラクタ。
 		 * @param dataList データリスト。
 		 */
-		public MemberTableModel(List<Segment> dataList) {
+		public SegmentTableModel(List<Segment> dataList) {
 			super(dataList);
 			this.addColumnInfo(new ColumnInfo("Name", "species", false, String.class));
 			this.addColumnInfo(new ColumnInfo("Seqno", "seqNo", false, Integer.class));
@@ -68,7 +68,7 @@ public class SelectSegmentDialog extends JDialog {
 	 * 特徴領域テーブル。
 	 *
 	 */
-	private class MemberTable extends UserTable {
+	private class SegmentTable extends UserTable {
 		/**
 		 * UID。
 		 */
@@ -76,8 +76,8 @@ public class SelectSegmentDialog extends JDialog {
 			/**
 		 * コンストラクタ。
 		 */
-		public MemberTable() {
-			this.setModel(new MemberTableModel(new ArrayList<Segment>()));
+		public SegmentTable() {
+			this.setModel(new SegmentTableModel(new ArrayList<Segment>()));
 			this.getColumn("Name").setPreferredWidth(100);
 			this.getColumn("Seqno").setPreferredWidth(60);
 			this.getColumn("Position").setPreferredWidth(80);
@@ -106,7 +106,7 @@ public class SelectSegmentDialog extends JDialog {
 	/**
 	 * 特徴領域メンバーテーブル。
 	 */
-	private final MemberTable memberTable = new MemberTable();
+	private final SegmentTable memberTable = new SegmentTable();
 
 	/**
 	 * 親コンポーネント。
@@ -132,7 +132,7 @@ public class SelectSegmentDialog extends JDialog {
 	 */
 	private void updateSegmentTable(final List<ColorGroup> list) {
 		List<Segment> segList = this.viewer.getOption().getSegmentList(list);
-		this.memberTable.setModel(new MemberTableModel(segList));
+		this.memberTable.setModel(new SegmentTableModel(segList));
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class SelectSegmentDialog extends JDialog {
 			JScrollPane memberScrollPane = new JScrollPane();
 			memberScrollPane.setViewportView(this.memberTable);
 			memberPanel.add(memberScrollPane);
-			this.memberTable.setModel(new MemberTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList())));
+			this.memberTable.setModel(new SegmentTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList())));
 		}
 		{
 			JPanel buttonPane = new JPanel();

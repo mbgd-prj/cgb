@@ -52,6 +52,7 @@ import cgdp.dialog.ClusterGroupEditDialog;
 import cgdp.dialog.ClusterGroupListDialog;
 import cgdp.dialog.SearchGenomeSequenceDialog;
 import cgdp.dialog.SearchNameDialog;
+import cgdp.dialog.SelectGeneSetDialog;
 import cgdp.dialog.SelectInparalogDialog;
 import cgdp.dialog.SelectSegmentDialog;
 import cgdp.dialog.SpSequenceDialog;
@@ -582,6 +583,9 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 			logger.debug("selectGeneSet");
 //			this.selectInparalog();
 		});
+		this.selectGeneSet.addActionListener((ActionEvent e) -> {
+			this.selectGeneSet();
+		});
 		this.selectSegment.addActionListener((ActionEvent e) -> {
 			this.selectSegment();
 		});
@@ -596,6 +600,18 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 			this.searchGenomeSequence();
 		});
 	}
+
+
+	/**
+	 * 	表示する特徴領域の選択。
+	 */
+	private void selectGeneSet() {
+		logger.debug("selectGeneSet");
+		SelectGeneSetDialog dlg = new SelectGeneSetDialog(this);
+		dlg.setModal(true);
+		dlg.setVisible(true);
+	}
+
 
 	/**
 	 * 	表示する特徴領域の選択。
