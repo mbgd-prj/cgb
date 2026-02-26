@@ -1696,6 +1696,7 @@ public class CompareMapOpt {
 				String name = g.getName();
 				for (Segment s : segList) {
 					if (s.getName().equals(name)) {
+						s.setColorCode(g.getColor());
 						list.add(s);
 					}
 				}

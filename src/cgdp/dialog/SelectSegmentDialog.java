@@ -233,6 +233,7 @@ public class SelectSegmentDialog extends JDialog {
 				this.viewer.getDrawer().setCenterPosByStr(locus, true);
 				this.viewer.repaint();
 			} catch (Error e) {
+				logger.error(e.getMessage(), e);
 				JOptionPane.showMessageDialog(this, e.getMessage());
 			}
 		}

@@ -924,8 +924,10 @@ public class ComparativeMapDrawer implements Drawer {
 		if (segList != null) {
 			logger.debug("drawSegment segList.size() = " + segList.size());
 			int hh = 10;
-			this.g.setColor(Color.BLACK);
 			for (Segment seg : segList) {
+				String colorCode = seg.getColorCode();
+				Color color = ColorUtil.getColor(colorCode);
+				this.g.setColor(color);
 				int dir = seg.getDir();
 				GenomicLocus fromgl = new GenomicLocus(seg.getFrom());
 				GenomicLocus togl = new GenomicLocus(seg.getTo());

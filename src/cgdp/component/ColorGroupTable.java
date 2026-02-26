@@ -69,6 +69,7 @@ public abstract class ColorGroupTable extends JTable {
 			logger.debug("color=" + color + ", rgb=" + rgb);
 			g.setColor(rgb);
 			this.setList(list);
+			this.updateMemberList(list);
 		}
 	}
 
