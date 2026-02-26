@@ -52,4 +52,14 @@ public class ColorGroupTable extends JTable {
 	public void setList(List<ColorGroup> groupList) {
 		this.setModel(new GroupTableModel(groupList));
 	}
+
+	/**
+	 * データを取得します。
+	 * @return 特徴領域、遺伝子集合グループリスト。
+	 */
+	public List<ColorGroup> getList() {
+		GroupTableModel model = (GroupTableModel)this.getModel();
+		return model.getDataList();
+	}
+
 }

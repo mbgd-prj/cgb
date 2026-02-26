@@ -111,9 +111,9 @@ public class CompareMapOpt {
 	private List<Segment> segmentList = null;
 
 	/**
-	 * セグメントの色コードのマップ。
+	 * セグメントの色グループリスト。
 	 */
-	private Map<String, String> segmentColorMap = null;
+	private List<ColorGroup> segmentColorGroupList = null;
 
 	/**
 	 * アノテーションファイル。
@@ -452,11 +452,30 @@ public class CompareMapOpt {
 		 */
 		private String color;
 
+		/**
+		 * コンストラクタ。
+		 * @param visible 表示フラグ。
+		 * @param name 名称。
+		 * @param color 色。
+		 */
 		public ColorGroup(final boolean visible, final String name, final String color) {
 			this.visible = visible;
 			this.name = name;
 			this.color = color;
 		}
+
+		/**
+		 * コンストラクタ。
+		 * @param visible 表示フラグ。
+		 * @param name 名称。
+		 * @param color 色。
+		 */
+		public ColorGroup(ColorGroup cg) {
+			 this.visible = cg.visible;
+			 this.name = cg.name;
+			 this.color = cg.color;
+		}
+
 	}
 
 
@@ -927,6 +946,24 @@ public class CompareMapOpt {
 	}
 
 	/**
+	 * セグメントの配色グループリストを取得します。
+	 */
+	public List<ColorGroup> getColorGroupList(final Map<String, String> colorMap) {
+		List<ColorGroup> ret = new ArrayList<>();
+		if (colorMap != null) {
+			for (String name: colorMap.keySet()) {
+				String color = colorMap.get(name);
+				if (color == null) {
+					color = "#000000";
+				}
+				ColorGroup cg = new ColorGroup(false, name, color);
+				ret.add(cg);
+			}
+		}
+		return ret;
+	}
+
+	/**
 	 * データ読み込み処理。
 	 * @throws Exception 例外。
 	 */
@@ -1023,21 +1060,22 @@ public class CompareMapOpt {
 		}
 		// セグメントファイルの読み込み
 		this.segmentList = new ArrayList<Segment>();
-		this.segmentColorMap = new HashMap<>();
+		Map<String, String> segmentColorMap = new HashMap<>();
 		if (this.segmentFileList != null) {
 			SegmentFileReader reader = new SegmentFileReader();
 			for (String seg: this.segmentFileList) {
 				String fname = this.getFilePath(seg);
 				List<Segment> seglist = reader.readSegmentFile(fname);
 				this.segmentList.addAll(seglist);
-				this.segmentColorMap.putAll(reader.getColorMap());
+				segmentColorMap.putAll(reader.getColorMap());
 			}
 			for (Segment s: this.segmentList) {
 				int seqNo = this.getChromosomeSeqNo(s.getSpecies(), s.getChromosome());
 				s.setSeqNo(seqNo);
 			}
+			this.segmentColorGroupList = this.getColorGroupList(segmentColorMap);
 //			logger.debug("segmentList=" + JSON.encode(this.segmentList, true));
-			logger.debug("segmentColorMap=" + JSON.encode(this.segmentColorMap, true));
+			logger.debug("segmentColorMap=" + JSON.encode(segmentColorMap, true));
 		}
 		// 遺伝子情報の読み込み処理。
 		this.geneSetList = new ArrayList<GeneSet>();
@@ -1619,22 +1657,6 @@ public class CompareMapOpt {
 		return this.anntationMap.get(clustid);
 	}
 
-
-	/**
-	 * セグメントの配色グループリストを取得します。
-	 */
-	public List<ColorGroup> getSegmentColorGroupList() {
-		List<ColorGroup> ret = new ArrayList<>();
-		if (this.segmentColorMap != null) {
-			for (String name: this.segmentColorMap.keySet()) {
-				String color = this.segmentColorMap.get(name);
-				ColorGroup cg = new ColorGroup(false, name, color);
-				ret.add(cg);
-			}
-		}
-		return ret;
-	}
-
 	/**
 	 * セグメントのリストを取得します。
 	 * @return セグメントのリスト。
@@ -1642,4 +1664,26 @@ public class CompareMapOpt {
 	public List<Segment> getSegmentList() {
 		return segmentList;
 	}
+
+	/**
+	 * 特徴領域リストを取得します。
+	 * @param glist 配色グループリスト。
+	 * @return 特徴領域リスト。
+	 */
+	public List<Segment> getSegmentList(final List<ColorGroup> glist) {
+		List<Segment> segList = this.getSegmentList();
+		List<Segment> list = new ArrayList<>();
+		for (ColorGroup g : glist) {
+			if (g.getVisible()) {
+				String name = g.getName();
+				for (Segment s : segList) {
+					if (s.getName().equals(name)) {
+						list.add(s);
+					}
+				}
+			}
+		}
+		return list;
+	}
+
 }

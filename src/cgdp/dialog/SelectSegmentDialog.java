@@ -21,7 +21,8 @@ import cgdp.component.UserTable;
 import cgdp.component.UserTableModel;
 import cgdp.corealign.ComparativeMapViewer;
 import cgdp.corealign.CompareMapOpt.ColorGroup;
-import cgdp.corealign.CompareMapOpt.HitInfo;
+import cgdp.filereader.SegmentFileReader.Segment;
+import net.arnx.jsonic.JSON;
 
 /**
  * セグメント選択ダイアログ。
@@ -41,7 +42,7 @@ public class SelectSegmentDialog extends JDialog {
 	/**
 	 * 特徴領域メンバーテーブルモデル。
 	 */
-	private class MemberTableModel extends UserTableModel<HitInfo> {
+	private class MemberTableModel extends UserTableModel<Segment> {
 		/**
 		 *
 		 */
@@ -51,15 +52,15 @@ public class SelectSegmentDialog extends JDialog {
 		 * コンストラクタ。
 		 * @param dataList データリスト。
 		 */
-		public MemberTableModel(List<HitInfo> dataList) {
+		public MemberTableModel(List<Segment> dataList) {
 			super(dataList);
-			this.addColumnInfo(new ColumnInfo("Name", "chrName", false, String.class));
+			this.addColumnInfo(new ColumnInfo("Name", "species", false, String.class));
 			this.addColumnInfo(new ColumnInfo("Seqno", "seqNo", false, Integer.class));
 			this.addColumnInfo(new ColumnInfo("Position", "start", false, Integer.class));
 			this.addColumnInfo(new ColumnInfo("Position", "end", false, Integer.class));
-			this.addColumnInfo(new ColumnInfo("Length", "length", false, Integer.class));
+			// this.addColumnInfo(new ColumnInfo("Length", "length", false, Integer.class));
 			this.addColumnInfo(new ColumnInfo("Dir", "dir", false, Integer.class));
-			this.addColumnInfo(new ColumnInfo("Sequence", "sequence", false, String.class));
+			this.addColumnInfo(new ColumnInfo("Sequence", "pattern", false, String.class));
 		}
 	}
 
@@ -76,7 +77,7 @@ public class SelectSegmentDialog extends JDialog {
 		 * コンストラクタ。
 		 */
 		public MemberTable() {
-			this.setModel(new MemberTableModel(new ArrayList<HitInfo>()));
+			this.setModel(new MemberTableModel(new ArrayList<Segment>()));
 			this.getColumn("Name").setPreferredWidth(100);
 			this.getColumn("Seqno").setPreferredWidth(60);
 			this.getColumn("Position").setPreferredWidth(80);
@@ -112,10 +113,27 @@ public class SelectSegmentDialog extends JDialog {
 	 */
 	private ComparativeMapViewer viewer = null;
 
+	/**
+	 * 配色グループリストを取得します。
+	 * @return 配色グループリスト。
+	 */
 	private List<ColorGroup> getColorGroupList() {
-		return this.viewer.getOption().getSegmentColorGroupList();
+		List<ColorGroup> list = this.viewer.getOption().getSegmentColorGroupList();
+		List<ColorGroup> copyList = new ArrayList<ColorGroup>();
+		for (ColorGroup group : list) {
+			copyList.add(new ColorGroup(group));
+		}
+		return copyList;
 	}
 
+	/**
+	 * 配色グループを選択したときに特徴領域テーブルを更新します。
+	 * @param list 配色グループリスト。
+	 */
+	private void updateSegmentTable(final List<ColorGroup> list) {
+		List<Segment> segList = this.viewer.getOption().getSegmentList(list);
+		this.memberTable.setModel(new MemberTableModel(segList));
+	}
 
 	/**
 	 * Create the dialog.
@@ -137,6 +155,19 @@ public class SelectSegmentDialog extends JDialog {
 			groupScrollPane.setViewportView(this.groupTable);
 			groupPanel.add(groupScrollPane);
 			this.groupTable.setList(this.getColorGroupList());
+			this.groupTable.addMouseListener(new java.awt.event.MouseAdapter() {
+				@Override
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					int row = SelectSegmentDialog.this.groupTable.getSelectedRow();
+					int col = SelectSegmentDialog.this.groupTable.getSelectedColumn();
+					logger.debug("row=" + row + ", col=" + col);
+					List<ColorGroup> list = SelectSegmentDialog.this.groupTable.getList();
+					logger.debug("list=" + JSON.encode(list, true));
+					if (col == 0) {
+						SelectSegmentDialog.this.updateSegmentTable(list);
+					}
+				}
+			});
 		}
 		// メンバーリストパネル
 		{
@@ -147,6 +178,7 @@ public class SelectSegmentDialog extends JDialog {
 			JScrollPane memberScrollPane = new JScrollPane();
 			memberScrollPane.setViewportView(this.memberTable);
 			memberPanel.add(memberScrollPane);
+			this.memberTable.setModel(new MemberTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList())));
 		}
 		{
 			JPanel buttonPane = new JPanel();
@@ -158,6 +190,7 @@ public class SelectSegmentDialog extends JDialog {
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
 				okButton.addActionListener((ActionEvent e) -> {
+					this.viewer.getOption().setSegmentColorGroupList(this.groupTable.getList());
 					SelectSegmentDialog.this.dispose();
 				});
 
