@@ -25,6 +25,7 @@ import cgat.seq.Sequence;
 import cgat.seq.SequenceAlignment;
 import cgdp.corealign.CompareMapOpt.ClusterGroup;
 import cgdp.corealign.CompareMapOpt.HitInfo;
+import cgdp.filereader.SegmentFileReader.Segment;
 import cgdp.util.ColorUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -679,6 +680,9 @@ public class ComparativeMapDrawer implements Drawer {
 		// 検索結果の表示処理。
 		this.drawHitResult();
 
+		// 特徴領域の描画
+		this.drawSegment();
+
 		///draw sequence
 		//System.out.println("mode=>"+geneDrawMode);
 		if (shouldCalcAlign()) {
@@ -901,6 +905,55 @@ public class ComparativeMapDrawer implements Drawer {
 							this.g.	drawPolygon(x, y, x.length);
 						}
 					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 特徴領域のリスト。
+	 */
+	@Setter
+	private List<Segment> segmentList = null;
+
+	/**
+	 * 特徴領域の描画。
+	 */
+	private void drawSegment() {
+		List<Segment> segList = this.segmentList;
+		if (segList != null) {
+			logger.debug("drawSegment segList.size() = " + segList.size());
+			int hh = 10;
+			this.g.setColor(Color.BLACK);
+			for (Segment seg : segList) {
+				int dir = seg.getDir();
+				GenomicLocus fromgl = new GenomicLocus(seg.getFrom());
+				GenomicLocus togl = new GenomicLocus(seg.getTo());
+				Point from = this.genomicLocus2Coordinate(fromgl);
+				Point to = this.genomicLocus2Coordinate(togl);
+				int len = seg.getPattern().length();
+				int x0 = this.get_xpos(from.x);
+				int x1 = this.get_xpos(to.x);
+				int y0 = this.get_ypos(from.y);
+
+				if (y0 < param.TOP_MARGIN + param.SCALEBAR_HEIGHT) {
+					continue;
+				}
+
+				int w = x1 - x0;
+				int dx = (w / len) / 4;
+				x0 -= dx;
+				x1 -= dx * 2;
+				BasicStroke bs = new BasicStroke(2);
+				this.g.setStroke(bs);
+				if (dir < 0) {
+					int[] x = {	x0     , x0 - dx, x0     , x1     , x1     };
+					int[] y = {	y0 - hh, y0     , y0 + hh, y0 + hh, y0 - hh};
+					this.g.	drawPolygon(x, y, x.length);
+				} else {
+					int[] x = {	x0     ,  x0     , x1     , x1 + dx, x1     };
+					int[] y = {	y0 - hh,  y0 + hh, y0 + hh, y0     , y0 - hh};
+					this.g.	drawPolygon(x, y, x.length);
 				}
 			}
 		}

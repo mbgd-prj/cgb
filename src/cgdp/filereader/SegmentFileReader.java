@@ -54,6 +54,23 @@ public class SegmentFileReader extends ColorFileReader {
 		 * 領域の色コード。
 		 */
 		private String colorCode;
+
+		/**
+		 * 特徴領域の開始位置を表す文字列を取得する。
+		 * @return 特徴領域の開始位置を表す文字列。
+		 */
+		public String getFrom() {
+			return this.species + ":" + this.seqNo + ":" + this.start;
+		}
+
+		/**
+		 * 特徴領域の終了位置を表す文字列を取得する。
+		 * @return 特徴領域の終了位置を表す文字列。
+		 */
+		public String getTo() {
+			return this.species + ":" + this.seqNo + ":" + this.end;
+		}
+
 	}
 
 	/**

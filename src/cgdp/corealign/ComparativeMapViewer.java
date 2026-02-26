@@ -579,10 +579,10 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 			logger.debug("selectCenter");
 			this.selectInparalog();
 		});
-		this.selectGeneSet.addActionListener((ActionEvent e) -> {
+/*		this.selectGeneSet.addActionListener((ActionEvent e) -> {
 			logger.debug("selectGeneSet");
 //			this.selectInparalog();
-		});
+		});*/
 		this.selectGeneSet.addActionListener((ActionEvent e) -> {
 			this.selectGeneSet();
 		});
@@ -608,7 +608,7 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 	private void selectGeneSet() {
 		logger.debug("selectGeneSet");
 		SelectGeneSetDialog dlg = new SelectGeneSetDialog(this);
-		dlg.setModal(true);
+		dlg.setModal(false);
 		dlg.setVisible(true);
 	}
 
@@ -619,7 +619,7 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 	private void selectSegment() {
 		logger.debug("selectSegment");
 		SelectSegmentDialog dlg = new SelectSegmentDialog(this);
-		dlg.setModal(true);
+		dlg.setModal(false);
 		dlg.setVisible(true);
 	}
 

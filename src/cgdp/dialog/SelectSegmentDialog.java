@@ -3,12 +3,15 @@ package cgdp.dialog;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableModel;
@@ -96,6 +99,11 @@ public class SelectSegmentDialog extends JDialog {
 				logger.debug(e.getMessage());
 			}
 		}
+
+		public List<Segment> getList() {
+			SegmentTableModel model = (SegmentTableModel) this.getModel();
+			return model.getDataList();
+		}
 	}
 
 	/**
@@ -137,6 +145,8 @@ public class SelectSegmentDialog extends JDialog {
 	private void updateSegmentTable(final List<ColorGroup> list) {
 		List<Segment> segList = this.viewer.getOption().getSegmentList(list);
 		this.memberTable.setModel(new SegmentTableModel(segList));
+		this.viewer.getDrawer().setSegmentList(segList);
+		this.viewer.repaint();
 	}
 
 	/**
@@ -144,6 +154,7 @@ public class SelectSegmentDialog extends JDialog {
 	 * @param viewer 親コンポーネント。
 	 */
 	public SelectSegmentDialog(final ComparativeMapViewer viewer) {
+		this.setAlwaysOnTop(true);
 		this.viewer = viewer;
 		setTitle("Select segment");
 		setBounds(100, 100, 791, 465);
@@ -170,6 +181,17 @@ public class SelectSegmentDialog extends JDialog {
 			memberScrollPane.setViewportView(this.memberTable);
 			memberPanel.add(memberScrollPane);
 			this.memberTable.setModel(new SegmentTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList())));
+			this.memberTable.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 2) {
+						logger.debug("Double clicked");
+						SelectSegmentDialog.this.updateViewer();
+					}
+				}
+			});
+
+
 		}
 		{
 			JPanel buttonPane = new JPanel();
@@ -184,7 +206,6 @@ public class SelectSegmentDialog extends JDialog {
 					this.viewer.getOption().setSegmentColorGroupList(this.groupTable.getList());
 					SelectSegmentDialog.this.dispose();
 				});
-
 			}
 			{
 				JButton cancelButton = new JButton("Cancel");
@@ -193,6 +214,26 @@ public class SelectSegmentDialog extends JDialog {
 				cancelButton.addActionListener((ActionEvent e) -> {
 					SelectSegmentDialog.this.dispose();
 				});
+			}
+		}
+	}
+
+
+	/**
+	 * Viewerの更新。
+	 */
+	private void updateViewer() {
+		int row = this.memberTable.getSelectedRow();
+		logger.debug("updateViewer row=" + row);
+		if (row >= 0) {
+			Segment seg = this.memberTable.getList().get(row);
+			String locus = seg.getFrom();
+			try {
+				this.viewer.getLocusInput().setText(locus);
+				this.viewer.getDrawer().setCenterPosByStr(locus, true);
+				this.viewer.repaint();
+			} catch (Error e) {
+				JOptionPane.showMessageDialog(this, e.getMessage());
 			}
 		}
 	}

@@ -137,6 +137,7 @@ public class SelectGeneSetDialog extends JDialog {
 	 *
 	 */
 	public SelectGeneSetDialog(final ComparativeMapViewer viewer) {
+		this.setAlwaysOnTop(true);
 		this.viewer = viewer;
 		setTitle("Select gene set");
 		setBounds(100, 100, 697, 461);
