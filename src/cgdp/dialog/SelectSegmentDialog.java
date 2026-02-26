@@ -22,7 +22,6 @@ import cgdp.component.UserTableModel;
 import cgdp.corealign.ComparativeMapViewer;
 import cgdp.corealign.CompareMapOpt.ColorGroup;
 import cgdp.filereader.SegmentFileReader.Segment;
-import net.arnx.jsonic.JSON;
 
 /**
  * セグメント選択ダイアログ。
@@ -102,7 +101,12 @@ public class SelectSegmentDialog extends JDialog {
 	/**
 	 * 配色グループテーブル。
 	 */
-	private final ColorGroupTable groupTable = new ColorGroupTable();
+	private final ColorGroupTable groupTable = new ColorGroupTable() {
+		@Override
+		protected void updateMemberList(List<ColorGroup> list) {
+			SelectSegmentDialog.this.updateSegmentTable(list);
+		}
+	};
 	/**
 	 * 特徴領域メンバーテーブル。
 	 */
@@ -155,19 +159,6 @@ public class SelectSegmentDialog extends JDialog {
 			groupScrollPane.setViewportView(this.groupTable);
 			groupPanel.add(groupScrollPane);
 			this.groupTable.setList(this.getColorGroupList());
-			this.groupTable.addMouseListener(new java.awt.event.MouseAdapter() {
-				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {
-					int row = SelectSegmentDialog.this.groupTable.getSelectedRow();
-					int col = SelectSegmentDialog.this.groupTable.getSelectedColumn();
-					logger.debug("row=" + row + ", col=" + col);
-					List<ColorGroup> list = SelectSegmentDialog.this.groupTable.getList();
-					logger.debug("list=" + JSON.encode(list, true));
-					if (col == 0) {
-						SelectSegmentDialog.this.updateSegmentTable(list);
-					}
-				}
-			});
 		}
 		// メンバーリストパネル
 		{

@@ -22,7 +22,6 @@ import cgdp.component.UserTableModel;
 import cgdp.corealign.ComparativeMapViewer;
 import cgdp.corealign.CompareMapOpt.ColorGroup;
 import cgdp.filereader.GeneSetFileReader.GeneSet;
-import net.arnx.jsonic.JSON;
 
 /**
  * 遺伝子セット選択ダイアログ。
@@ -97,7 +96,12 @@ public class SelectGeneSetDialog extends JDialog {
 	/**
 	 * 配色グループテーブル。
 	 */
-	private final ColorGroupTable groupTable = new ColorGroupTable();
+	private final ColorGroupTable groupTable = new ColorGroupTable() {
+		@Override
+		protected void updateMemberList(List<ColorGroup> list) {
+			SelectGeneSetDialog.this.updateGeneSetTable(list);
+		}
+	};
 
 	/**
 	 * 遺伝子集合テーブル。
@@ -148,19 +152,6 @@ public class SelectGeneSetDialog extends JDialog {
 			groupScrollPane.setViewportView(this.groupTable);
 			groupPanel.add(groupScrollPane);
 			this.groupTable.setList(this.getColorGroupList());
-			this.groupTable.addMouseListener(new java.awt.event.MouseAdapter() {
-				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {
-					int row = SelectGeneSetDialog.this.groupTable.getSelectedRow();
-					int col = SelectGeneSetDialog.this.groupTable.getSelectedColumn();
-					logger.debug("row=" + row + ", col=" + col);
-					List<ColorGroup> list = SelectGeneSetDialog.this.groupTable.getList();
-					logger.debug("list=" + JSON.encode(list, true));
-					if (col == 0) {
-						SelectGeneSetDialog.this.updateGeneSetTable(list);
-					}
-				}
-			});
 		}
 		// メンバーリストパネル
 		{
