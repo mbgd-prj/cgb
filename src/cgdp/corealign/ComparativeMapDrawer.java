@@ -1260,6 +1260,12 @@ public class ComparativeMapDrawer implements Drawer {
 		}
 	}
 
+	/**
+	 * sp:nameに対する色マップ。
+	 */
+	@Setter
+	private Map<String, Color> geneColorMap = null;
+
 	/** draw all genes in the specified ortholog cluster */
 	void drawGenesInCluster(Cluster cluster, Color geneCol, int flag) {
 		/*
@@ -1286,7 +1292,13 @@ public class ComparativeMapDrawer implements Drawer {
 			LinkedList<Integer> next_prevPosList = new LinkedList<Integer>();
 			for (DomCluster dcl : dlist) {
 				Gene gene = dcl.dom.gene;
-
+				if (this.geneColorMap != null) {
+					String spname = gene.sp + ":" + gene.name;
+					Color c = this.geneColorMap.get(spname);
+					if (c != null) {
+						geneCol = c;
+					}
+				}
 
 				//	SeqRegion seqreg = getDisplayRegion( ginfo.getGeneViewRegion(gene) );
 				//	if (seqreg == null) return;

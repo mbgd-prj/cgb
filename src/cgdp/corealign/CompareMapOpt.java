@@ -1675,6 +1675,7 @@ public class CompareMapOpt {
 				String name = g.getName();
 				for (GeneSet s : slist) {
 					if (s.checkName(name)) {
+						s.setColorCode(g.getColor());
 						list.add(s);
 					}
 				}

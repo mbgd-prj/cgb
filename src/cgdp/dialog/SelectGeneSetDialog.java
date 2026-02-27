@@ -1,14 +1,20 @@
 package cgdp.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableModel;
@@ -22,6 +28,7 @@ import cgdp.component.UserTableModel;
 import cgdp.corealign.ComparativeMapViewer;
 import cgdp.corealign.CompareMapOpt.ColorGroup;
 import cgdp.filereader.GeneSetFileReader.GeneSet;
+import cgdp.util.ColorUtil;
 
 /**
  * 遺伝子セット選択ダイアログ。
@@ -86,6 +93,12 @@ public class SelectGeneSetDialog extends JDialog {
 				logger.debug(e.getMessage());
 			}
 		}
+
+		public List<GeneSet> getList() {
+			GeneSetTableModel model = (GeneSetTableModel) this.getModel();
+			return model.getDataList();
+		}
+
 	}
 
 	/**
@@ -123,12 +136,32 @@ public class SelectGeneSetDialog extends JDialog {
 	}
 
 	/**
+	 * 遺伝子集合リストから色マップを作成します。
+	 * @param glist 遺伝子集合リスト。
+	 * @return 色マップ。
+	 */
+	private Map<String, java.awt.Color> getColorMap(List<GeneSet> glist) {
+		Map<String, Color> colorMap = new HashMap<>();
+		for (GeneSet g : glist) {
+			String name = g.getSpecies() + ":" + g.getLocus();
+			Color c = ColorUtil.getColor(g.getColorCode());
+			colorMap.put(name, c);
+		}
+		return colorMap;
+	}
+
+	/**
+	 *
 	 * 配色グループを選択したときに遺伝子氏集合テーブルを更新します。
 	 * @param list 配色グループリスト。
 	 */
 	private void updateGeneSetTable(final List<ColorGroup> list) {
 		List<GeneSet> glist = this.viewer.getOption().getGeneSetList(list);
 		this.geneSetTable.setModel(new GeneSetTableModel(glist));
+		this.viewer.getDrawer().setGeneColorMap(this.getColorMap(glist));
+		this.viewer.repaint();
+
+
 	}
 
 	/**
@@ -146,7 +179,7 @@ public class SelectGeneSetDialog extends JDialog {
 		{
 			JPanel groupPanel = new JPanel();
 			groupPanel.setLayout(new BorderLayout(0, 0));
-			groupPanel.setPreferredSize(new java.awt.Dimension(400, 0));
+			groupPanel.setPreferredSize(new java.awt.Dimension(300, 0));
 			getContentPane().add(groupPanel, BorderLayout.WEST);
 			groupPanel.add(new JLabel("Group list"), BorderLayout.NORTH);
 			JScrollPane groupScrollPane = new JScrollPane();
@@ -164,6 +197,15 @@ public class SelectGeneSetDialog extends JDialog {
 			memberScrollPane.setViewportView(this.geneSetTable);
 			memberPanel.add(memberScrollPane);
 			this.geneSetTable.setModel(new GeneSetTableModel(this.viewer.getOption().getGeneSetList(this.groupTable.getList())));
+			this.geneSetTable.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 2) {
+						logger.debug("Double clicked");
+						SelectGeneSetDialog.this.updateViewer();
+					}
+				}
+			});
 
 		}
 		{
@@ -188,6 +230,26 @@ public class SelectGeneSetDialog extends JDialog {
 				cancelButton.addActionListener((ActionEvent e) -> {
 					SelectGeneSetDialog.this.dispose();
 				});
+			}
+		}
+	}
+
+	/**
+	 * Viewerの更新。
+	 */
+	private void updateViewer() {
+		int row = this.geneSetTable.getSelectedRow();
+		logger.debug("updateViewer row=" + row);
+		if (row >= 0) {
+			GeneSet seg = this.geneSetTable.getList().get(row);
+			String locus = seg.getSpecies() + ":" + seg.getLocus();
+			try {
+				this.viewer.getLocusInput().setText(locus);
+				this.viewer.getDrawer().setCenterPosByStr(locus, true);
+				this.viewer.repaint();
+			} catch (Error e) {
+				logger.error(e.getMessage(), e);
+				JOptionPane.showMessageDialog(this, e.getMessage());
 			}
 		}
 	}

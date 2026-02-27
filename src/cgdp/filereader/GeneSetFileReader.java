@@ -25,6 +25,10 @@ public class GeneSetFileReader extends ColorFileReader {
 		private List<String> nameList;
 		// 色リスト。
 		private List<String> colodList;
+		/**
+		 * 色コード。
+		 */
+		private String colorCode;
 
 		/**
 		 * コンストラクタ。

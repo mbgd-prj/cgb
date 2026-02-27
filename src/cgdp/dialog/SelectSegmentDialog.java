@@ -118,7 +118,7 @@ public class SelectSegmentDialog extends JDialog {
 	/**
 	 * 特徴領域メンバーテーブル。
 	 */
-	private final SegmentTable memberTable = new SegmentTable();
+	private final SegmentTable segmentTable = new SegmentTable();
 
 	/**
 	 * 親コンポーネント。
@@ -144,7 +144,7 @@ public class SelectSegmentDialog extends JDialog {
 	 */
 	private void updateSegmentTable(final List<ColorGroup> list) {
 		List<Segment> segList = this.viewer.getOption().getSegmentList(list);
-		this.memberTable.setModel(new SegmentTableModel(segList));
+		this.segmentTable.setModel(new SegmentTableModel(segList));
 		this.viewer.getDrawer().setSegmentList(segList);
 		this.viewer.repaint();
 	}
@@ -178,10 +178,10 @@ public class SelectSegmentDialog extends JDialog {
 			getContentPane().add(memberPanel, BorderLayout.CENTER);
 			memberPanel.add(new JLabel("Segment list"), BorderLayout.NORTH);
 			JScrollPane memberScrollPane = new JScrollPane();
-			memberScrollPane.setViewportView(this.memberTable);
+			memberScrollPane.setViewportView(this.segmentTable);
 			memberPanel.add(memberScrollPane);
-			this.memberTable.setModel(new SegmentTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList())));
-			this.memberTable.addMouseListener(new MouseAdapter() {
+			this.segmentTable.setModel(new SegmentTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList())));
+			this.segmentTable.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 2) {
@@ -223,10 +223,10 @@ public class SelectSegmentDialog extends JDialog {
 	 * Viewerの更新。
 	 */
 	private void updateViewer() {
-		int row = this.memberTable.getSelectedRow();
+		int row = this.segmentTable.getSelectedRow();
 		logger.debug("updateViewer row=" + row);
 		if (row >= 0) {
-			Segment seg = this.memberTable.getList().get(row);
+			Segment seg = this.segmentTable.getList().get(row);
 			String locus = seg.getFrom();
 			try {
 				this.viewer.getLocusInput().setText(locus);
