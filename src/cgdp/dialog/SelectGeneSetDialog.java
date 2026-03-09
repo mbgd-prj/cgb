@@ -132,6 +132,7 @@ public class SelectGeneSetDialog extends JDialog {
 		for (ColorGroup group : list) {
 			copyList.add(new ColorGroup(group));
 		}
+		copyList.sort((a, b) -> a.getName().compareTo(b.getName()));
 		return copyList;
 	}
 

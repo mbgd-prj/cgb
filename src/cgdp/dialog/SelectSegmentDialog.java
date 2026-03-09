@@ -135,6 +135,7 @@ public class SelectSegmentDialog extends JDialog {
 		for (ColorGroup group : list) {
 			copyList.add(new ColorGroup(group));
 		}
+		copyList.sort((a, b) -> a.getName().compareTo(b.getName()));
 		return copyList;
 	}
 
@@ -144,6 +145,16 @@ public class SelectSegmentDialog extends JDialog {
 	 */
 	private void updateSegmentTable(final List<ColorGroup> list) {
 		List<Segment> segList = this.viewer.getOption().getSegmentList(list);
+		segList.sort((a, b) -> {
+			int cmp = a.getSpecies().compareTo(b.getSpecies());
+			if (cmp == 0) {
+				cmp = Integer.compare(a.getSeqNo(), b.getSeqNo());
+			}
+			if (cmp == 0) {
+				cmp = Integer.compare(a.getStart(), b.getStart());
+			}
+			return cmp;
+		});
 		this.segmentTable.setModel(new SegmentTableModel(segList));
 		this.viewer.getDrawer().setSegmentList(segList);
 		this.viewer.repaint();
