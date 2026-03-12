@@ -279,6 +279,9 @@ System.out.println("####ALICACHE: "+seqreg+" "+addwin);
 		String spec = loc.getSpecies();
 		/* aligned region */
 		GenomicRegion seqreg = seqRegHash.get(spec);
+		if (seqreg == null) {
+			return 0;
+		}
 //System.out.println("getAlignmentPos:"+ seqreg+"; "+loc);
 		if (! seqreg.contains(loc)) {
 			// no adjustment

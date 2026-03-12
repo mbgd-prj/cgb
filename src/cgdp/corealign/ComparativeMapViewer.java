@@ -81,6 +81,8 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 	private static Logger logger = LogManager.getLogger(ComparativeMapViewer.class);
 
 	private JMenuBar menuBar = null;
+
+
 	// ファイルメニュー
 	private JMenu fileMenu = null;
 	// TAXファイルオープン
@@ -166,6 +168,7 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 
 
 	private JButton centerSelectButton = null;
+
 
 
 	ComparativeMapViewer(ComparativeMapDrawer _drawer, int width, int height, boolean islmode) {
@@ -312,6 +315,13 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 
 		this.setTitle(WINDOW_TITLE);
 		this.setButtonStatus();
+	}
+
+	/**
+	 * MenuBarの再描画。
+	 */
+	public void updateMenuBar() {
+		this.menuBar.repaint();
 	}
 
 	/**
