@@ -712,6 +712,7 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 				Map<String, Object> map = JSON.decode(is, HashMap.class);
 				this.option.setStatusMap(map);
 				this.option.readData();
+
 				this.getDrawer().setOpt(this.option);
 
 /*				String centerPosStr = locusInput.getText();
@@ -786,7 +787,8 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 				this.option.setViewWidth(this.drawer.viewRegion.end - this.drawer.viewRegion.begin + 1);
 			}
 			this.option.setRegionOffset(SeqRegion.offset);
-			// TODO:
+
+
 //			this.drawer.viewRegion.
 			String json = this.option.getStatusJson();
 			try (PrintWriter w = new PrintWriter(file)) {

@@ -718,6 +718,16 @@ public class CompareMapOpt {
 		ret.put("hitList", this.hitList);
 		//
 		ret.put("clusterGroupList", this.getCGList());
+
+		// 特徴領域ファイルリスト
+		ret.put("segmentFileList", this.segmentFileList);
+
+		// 遺伝子集合ファイル
+		ret.put("geneSetFileList", this.geneSetFileList);
+
+		// アノテーション
+		ret.put("annotationFileList", this.annotationFileList);
+
 		return ret;
 	}
 
@@ -834,6 +844,14 @@ public class CompareMapOpt {
 				this.hitList.add(hi);
 			}
 		}
+		// 特徴領域ファイルリスト。
+		this.segmentFileList = (List<String>) map.get("segmentFileList");
+		// 遺伝子集合ファイル
+		this.geneSetFileList = (List<String>) map.get("geneSetFileList");
+		// アノテーションマップ
+		this.annotationFileList = (List<String>) map.get("annotationFileList");
+		 // クラスタグループリスト
+
 	}
 
 	/**
@@ -928,7 +946,7 @@ public class CompareMapOpt {
 	private void readAnnotationFile(String fname) throws Exception {
 
 		AnnotationFileReader reader = new AnnotationFileReader();
-		this.anntationMap = reader.readAnnotationFile(fname);
+		this.annotationMap = reader.readAnnotationFile(fname);
 	}
 
 	/**
@@ -1056,13 +1074,24 @@ public class CompareMapOpt {
 			this.cmap = new CompareMap(coreGenome, gdata);
 		}
 		// アノテーションファイルの読み込み
-		if (this.annotationFileList != null) {
-			for (String ann: this.annotationFileList) {
-				String fname = this.getFilePath(ann);
-				this.readAnnotationFile(fname);
-			}
-		}
+		this.readAnnotationFileList();
 		// セグメントファイルの読み込み
+		this.readSegmentFileList();
+		// 遺伝子集合ファイルの読み込み処理。
+		this.readGeneSetFileList();
+
+		this.readSegmentFileList();
+		this.readGeneSetFileList();
+		this.readAnnotationFileList();
+
+		logger.debug("--- readData finish. ---");
+	}
+
+	/**
+	 * 特徴領域ファイルの読み込み処理。
+	 * @throws Exception 例外。
+	 */
+	private void readSegmentFileList() throws Exception {
 		this.segmentList = new ArrayList<Segment>();
 		Map<String, String> segmentColorMap = new HashMap<>();
 		if (this.segmentFileList != null) {
@@ -1081,7 +1110,13 @@ public class CompareMapOpt {
 //			logger.debug("segmentList=" + JSON.encode(this.segmentList, true));
 			logger.debug("segmentColorMap=" + JSON.encode(segmentColorMap, true));
 		}
-		// 遺伝子情報の読み込み処理。
+	}
+
+	/**
+	 * 遺伝子集合ファイルの読み込み処理。
+	 * @throws Exception 例外。
+	 */
+	private void readGeneSetFileList() throws Exception {
 		this.geneSetList = new ArrayList<GeneSet>();
 		Map<String, String> geneSetColorMap = new HashMap<>();
 		if (this.geneSetFileList != null) {
@@ -1096,7 +1131,19 @@ public class CompareMapOpt {
 //			logger.debug("geneSetList=" + JSON.encode(this.geneSetList, true));
 //			logger.debug("geneSetColorMap=" + JSON.encode(this.geneSetColorMap, true));
 		}
-		logger.debug("--- readData finish. ---");
+	}
+
+	/**
+	 * アノテーションファイルのリストを読み込みます。
+	 * @throws Exception 例外。
+	 */
+	private void readAnnotationFileList() throws Exception {
+		if (this.annotationFileList != null) {
+			for (String ann: this.annotationFileList) {
+				String fname = this.getFilePath(ann);
+				this.readAnnotationFile(fname);
+			}
+		}
 	}
 
 	/**
@@ -1651,7 +1698,7 @@ public class CompareMapOpt {
 	/**
 	 * アノテーションのマップ。
 	 */
-	private Map<String, String> anntationMap = new HashMap<String, String>();
+	private Map<String, String> annotationMap = new HashMap<String, String>();
 
 	/**
 	 * アノテーションを取得する。
@@ -1659,7 +1706,7 @@ public class CompareMapOpt {
 	 * @return アノテーション。
 	 */
 	public String getAnnotation(final String clustid) {
-		return this.anntationMap.get(clustid);
+		return this.annotationMap.get(clustid);
 	}
 
 	/**
