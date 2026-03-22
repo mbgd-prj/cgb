@@ -18,6 +18,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -158,7 +159,10 @@ public class SelectGeneSetDialog extends JDialog {
 	 */
 	private void updateGeneSetTable(final List<ColorGroup> list) {
 		List<GeneSet> glist = this.viewer.getOption().getGeneSetList(list);
-		this.geneSetTable.setModel(new GeneSetTableModel(glist));
+		GeneSetTableModel model = new GeneSetTableModel(glist);
+		this.geneSetTable.setModel(model);
+        TableRowSorter<GeneSetTableModel> sorter = new TableRowSorter<>(model);
+        this.geneSetTable.setRowSorter(sorter);
 		this.viewer.getDrawer().setGeneColorMap(this.getColorMap(glist));
 		this.viewer.repaint();
 

@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -155,7 +156,12 @@ public class SelectSegmentDialog extends JDialog {
 			}
 			return cmp;
 		});
-		this.segmentTable.setModel(new SegmentTableModel(segList));
+		SegmentTableModel model = new SegmentTableModel(segList);
+		this.segmentTable.setModel(model);
+        // ソート機能を有効化
+        TableRowSorter<SegmentTableModel> sorter = new TableRowSorter<>(model);
+        this.segmentTable.setRowSorter(sorter);
+        //
 		this.viewer.getDrawer().setSegmentList(segList);
 		this.viewer.repaint();
 	}
@@ -191,7 +197,8 @@ public class SelectSegmentDialog extends JDialog {
 			JScrollPane memberScrollPane = new JScrollPane();
 			memberScrollPane.setViewportView(this.segmentTable);
 			memberPanel.add(memberScrollPane);
-			this.segmentTable.setModel(new SegmentTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList())));
+			SegmentTableModel model = new SegmentTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList()));
+			this.segmentTable.setModel(model);
 			this.segmentTable.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
