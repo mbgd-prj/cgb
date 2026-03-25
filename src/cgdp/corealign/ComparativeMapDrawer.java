@@ -681,7 +681,7 @@ public class ComparativeMapDrawer implements Drawer {
 		this.drawHitResult();
 
 		// 特徴領域の描画
-		this.drawSegment();
+		this.drawSegment(currGinfoList);
 
 		///draw sequence
 		//System.out.println("mode=>"+geneDrawMode);
@@ -928,10 +928,22 @@ public class ComparativeMapDrawer implements Drawer {
 	@Setter
 	private List<Segment> segmentList = null;
 
+	private int getSpIndex(String sp, ArrayList<GenomeMapInfo> currGinfoList) {
+		int index = 0;
+		for (GenomeMapInfo ginfo : currGinfoList) {
+			if (ginfo.getGenome().getSpCode().equals(sp)) {
+				return index;
+			}
+			index++;
+		}
+		return -1;
+	}
+
 	/**
 	 * 特徴領域の描画。
+	 * @param currGinfoList 現在表示している生物種のGenomeMapInfoのリスト。
 	 */
-	private void drawSegment() {
+	private void drawSegment(ArrayList<GenomeMapInfo> currGinfoList) {
 		List<Segment> segList = this.segmentList;
 		if (segList != null) {
 			logger.debug("drawSegment segList.size() = " + segList.size());
@@ -971,7 +983,12 @@ public class ComparativeMapDrawer implements Drawer {
 				int len = seg.getPattern().length();
 				int x0 = this.get_xpos(from.x);
 				int x1 = this.get_xpos(to.x);
-				int y0 = this.get_ypos(from.y);
+				//int y0 = this.get_ypos(from.y);
+				int spIndex = getSpIndex(seg.getSpecies(), currGinfoList);
+				if (spIndex < 0) {
+					continue;
+				}
+				int y0 = this.get_ypos(spIndex);
 
 				if (y0 < param.TOP_MARGIN + param.SCALEBAR_HEIGHT) {
 					continue;
