@@ -5,5 +5,6 @@ CGB is a comparative genome browser for visualizing synteny conservation among c
 
 * [Java binary file](https://mbgd.nibb.ac.jp/CGB/dist/CGB.jar)
 * [Document](https://mbgd.nibb.ac.jp/CGB/dist/CGB_doc.pdf)
+* Requirements: Java 11 or later
   
 ![Comparative Genome Browser](/images/CGB.png)
