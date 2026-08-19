@@ -619,10 +619,10 @@ System.out.println("GGGG:"+genename+" "+geneIndex.get(genename));
 		if (cclust != null) {
 			logger.debug("HitGene="+ hitGene);
 			logger.debug(cclust.specNum()+" "+gdata.specNum());
+			cclust.prioritizeGene(hitGene);
 		} else {
-			throw new Error("The specified position does not exist within the displayed cluster.");
+			// throw new Error("The specified position does not exist within the displayed cluster.");
 		}
-		cclust.prioritizeGene(hitGene);
 		return(cclust);
 	}
 	String getRefSp(){

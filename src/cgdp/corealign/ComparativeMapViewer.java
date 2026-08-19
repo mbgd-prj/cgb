@@ -81,6 +81,8 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 	private static Logger logger = LogManager.getLogger(ComparativeMapViewer.class);
 
 	private JMenuBar menuBar = null;
+
+
 	// ファイルメニュー
 	private JMenu fileMenu = null;
 	// TAXファイルオープン
@@ -166,6 +168,7 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 
 
 	private JButton centerSelectButton = null;
+
 
 
 	ComparativeMapViewer(ComparativeMapDrawer _drawer, int width, int height, boolean islmode) {
@@ -312,6 +315,13 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 
 		this.setTitle(WINDOW_TITLE);
 		this.setButtonStatus();
+	}
+
+	/**
+	 * MenuBarの再描画。
+	 */
+	public void updateMenuBar() {
+		this.menuBar.repaint();
 	}
 
 	/**
@@ -702,6 +712,7 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 				Map<String, Object> map = JSON.decode(is, HashMap.class);
 				this.option.setStatusMap(map);
 				this.option.readData();
+
 				this.getDrawer().setOpt(this.option);
 
 /*				String centerPosStr = locusInput.getText();
@@ -776,7 +787,8 @@ public class ComparativeMapViewer extends JFrame implements Printable {
 				this.option.setViewWidth(this.drawer.viewRegion.end - this.drawer.viewRegion.begin + 1);
 			}
 			this.option.setRegionOffset(SeqRegion.offset);
-			// TODO:
+
+
 //			this.drawer.viewRegion.
 			String json = this.option.getStatusJson();
 			try (PrintWriter w = new PrintWriter(file)) {

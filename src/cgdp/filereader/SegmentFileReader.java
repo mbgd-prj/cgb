@@ -60,7 +60,7 @@ public class SegmentFileReader extends ColorFileReader {
 		 * @return 特徴領域の開始位置を表す文字列。
 		 */
 		public String getFrom() {
-			return this.species + ":" + this.seqNo + ":" + this.start;
+			return this.species + ":" + this.seqNo + ":" + (this.start);
 		}
 
 		/**

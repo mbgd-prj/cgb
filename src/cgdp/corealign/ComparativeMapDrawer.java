@@ -681,7 +681,7 @@ public class ComparativeMapDrawer implements Drawer {
 		this.drawHitResult();
 
 		// 特徴領域の描画
-		this.drawSegment();
+		this.drawSegment(currGinfoList);
 
 		///draw sequence
 		//System.out.println("mode=>"+geneDrawMode);
@@ -841,6 +841,8 @@ public class ComparativeMapDrawer implements Drawer {
 		return gene;
 	}
 
+
+
 	/**
 	 * 検索結果の表示。
 	 */
@@ -856,6 +858,7 @@ public class ComparativeMapDrawer implements Drawer {
 				for (int i = 0; i < hitList.size(); i++) {
 					HitInfo hitInfo = hitList.get(i);
 
+					logger.debug("drawHitResult: " + hitInfo.getChrName() + " " + hitInfo.getStart() + "-" + hitInfo.getEnd() + " dir=" + hitInfo.getDir());
 					GenomeMapInfo ginfo = compMap.getGenomeMap(hitInfo.getChrName());
 					int dir = ginfo.getChromDir();
 
@@ -908,6 +911,15 @@ public class ComparativeMapDrawer implements Drawer {
 				}
 			}
 		}
+		this.mapViewer.updateMenuBar();
+	}
+
+	private Gene getGeneFromSegment(Segment seg) {
+		String sp = seg.getChromosome();
+		float pos = (float)(seg.getStart() + seg.getEnd()) / 2;
+		int len = Math.abs(seg.getEnd() - seg.getStart()) / 3;
+		Gene gene = new Gene(sp, sp, seg.getSeqNo(), pos, len, seg.getDir());
+		return gene;
 	}
 
 	/**
@@ -916,10 +928,22 @@ public class ComparativeMapDrawer implements Drawer {
 	@Setter
 	private List<Segment> segmentList = null;
 
+	private int getSpIndex(String sp, ArrayList<GenomeMapInfo> currGinfoList) {
+		int index = 0;
+		for (GenomeMapInfo ginfo : currGinfoList) {
+			if (ginfo.getGenome().getSpCode().equals(sp)) {
+				return index;
+			}
+			index++;
+		}
+		return -1;
+	}
+
 	/**
 	 * 特徴領域の描画。
+	 * @param currGinfoList 現在表示している生物種のGenomeMapInfoのリスト。
 	 */
-	private void drawSegment() {
+	private void drawSegment(ArrayList<GenomeMapInfo> currGinfoList) {
 		List<Segment> segList = this.segmentList;
 		if (segList != null) {
 			logger.debug("drawSegment segList.size() = " + segList.size());
@@ -933,10 +957,38 @@ public class ComparativeMapDrawer implements Drawer {
 				GenomicLocus togl = new GenomicLocus(seg.getTo());
 				Point from = this.genomicLocus2Coordinate(fromgl);
 				Point to = this.genomicLocus2Coordinate(togl);
+
+				logger.debug("drawSegment: " + seg.getSpecies() + " " + seg.getChromosome() + ":" + seg.getStart() + "-" + seg.getEnd());
+				GenomeMapInfo ginfo = compMap.getGenomeMap(seg.getSpecies());
+
+				boolean draw = true;
+				if (this.shouldCalcAlign()) {
+					// 表示位置の補正処理
+					Gene gene = this.getGeneFromSegment(seg);
+					SeqRegion r = ginfo.getGeneViewRegion(gene);
+					SeqRegion seqreg = getDisplayRegion(new SeqRegion(r.getBegin() + 1, r.getEnd() - 1));
+					SeqRegion dispReg = seqreg;
+					// 表示範囲外の生物種のキャッシュはない?
+					if (alignCache.alignmentHash.containsKey(seg.getSpecies()) && dispReg != null) {
+						alignCache.getRegionOnAlignment(dispReg, gene.getRegion(), dir);
+						from.x = dispReg.begin();
+						to.x = dispReg.end();
+					} else {
+						draw = false;
+					}
+				}
+				if (!draw) {
+					continue;
+				}
 				int len = seg.getPattern().length();
 				int x0 = this.get_xpos(from.x);
 				int x1 = this.get_xpos(to.x);
-				int y0 = this.get_ypos(from.y);
+				//int y0 = this.get_ypos(from.y);
+				int spIndex = getSpIndex(seg.getSpecies(), currGinfoList);
+				if (spIndex < 0) {
+					continue;
+				}
+				int y0 = this.get_ypos(spIndex);
 
 				if (y0 < param.TOP_MARGIN + param.SCALEBAR_HEIGHT) {
 					continue;
@@ -959,6 +1011,8 @@ public class ComparativeMapDrawer implements Drawer {
 				}
 			}
 		}
+		//this.getViewer().getMenuBar().repaint();
+		this.mapViewer.updateMenuBar();
 	}
 
 	/**

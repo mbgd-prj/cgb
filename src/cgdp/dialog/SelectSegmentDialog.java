@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -135,6 +136,7 @@ public class SelectSegmentDialog extends JDialog {
 		for (ColorGroup group : list) {
 			copyList.add(new ColorGroup(group));
 		}
+		copyList.sort((a, b) -> a.getName().compareTo(b.getName()));
 		return copyList;
 	}
 
@@ -144,7 +146,22 @@ public class SelectSegmentDialog extends JDialog {
 	 */
 	private void updateSegmentTable(final List<ColorGroup> list) {
 		List<Segment> segList = this.viewer.getOption().getSegmentList(list);
-		this.segmentTable.setModel(new SegmentTableModel(segList));
+		segList.sort((a, b) -> {
+			int cmp = a.getSpecies().compareTo(b.getSpecies());
+			if (cmp == 0) {
+				cmp = Integer.compare(a.getSeqNo(), b.getSeqNo());
+			}
+			if (cmp == 0) {
+				cmp = Integer.compare(a.getStart(), b.getStart());
+			}
+			return cmp;
+		});
+		SegmentTableModel model = new SegmentTableModel(segList);
+		this.segmentTable.setModel(model);
+        // ソート機能を有効化
+        TableRowSorter<SegmentTableModel> sorter = new TableRowSorter<>(model);
+        this.segmentTable.setRowSorter(sorter);
+        //
 		this.viewer.getDrawer().setSegmentList(segList);
 		this.viewer.repaint();
 	}
@@ -180,7 +197,8 @@ public class SelectSegmentDialog extends JDialog {
 			JScrollPane memberScrollPane = new JScrollPane();
 			memberScrollPane.setViewportView(this.segmentTable);
 			memberPanel.add(memberScrollPane);
-			this.segmentTable.setModel(new SegmentTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList())));
+			SegmentTableModel model = new SegmentTableModel(this.viewer.getOption().getSegmentList(this.groupTable.getList()));
+			this.segmentTable.setModel(model);
 			this.segmentTable.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
