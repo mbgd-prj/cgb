@@ -1,11 +1,4 @@
-# Synteny-based Comparative Genome Analysis Tool
+# CGB: Comparative Genome Browser
 
-Syn-CGAT is a collection of tools for comparative genome analysis among related genomes based on synteny analysis.
-It accepts orthologous groups identified across given genomes and analyze syntenically conserved regions among them.
-
-Currently, Syn-CGAT contains the following programs:
-
-**CoreAligner**: A tool to identify syntenically consereved orthologous groups and determine the consensus order among them.
-
-**Comparative Genome Browser (CGB)**: A tool to visualize the synteny conservation using the output of the CoreAlignher program.
+CGB is a comparative genome browser for visualizing synteny conservation among closely related genomes using the CoreAligner program ([Uchiyama, BMC Genomics, 2008](https://link.springer.com/article/10.1186/1471-2164-9-515)).  CoreAligner has been reimplemented in Java and is now bundled with the CGB package.
 
