@@ -203,7 +203,6 @@ public class GenomeData {
 		}
 	}
 	void setChromosomeLengthFromGeneData(Genome genome) {
-		logger.info("*** genome.chromosomes = " + genome.chromosomes.size());
 		for (Chromosome c: genome.chromosomes) {
 			float chrMaxPos = 0;
 			int chrMaxPosLen = 0;
@@ -1056,7 +1055,6 @@ class GeneData {
 							HashMap<String,String> genomeInfo = readInfo(linebuf);
 							String spcode = genomeInfo.get("sp");
 							Genome genome = gdata.getGenome(spcode);
-							logger.info("... genome.chromosomes.size() = " + genome.spcode + ", " + genome.chromosomes.size());
 
 							String dispName = gdata.getGenomeDisplayName();
 							if (dispName!=null && genomeInfo.get(dispName)!=null){
@@ -1136,7 +1134,6 @@ class GeneData {
 			Genome genome = gdata.getGenome(sp);
 			genome.numseq = numseq;
 			genome.sortGenes();
-			logger.info("+++ genome.chromosomes.size() = " + genome.spcode + ", " + genome.chromosomes.size());
 		}
 	}
 	private HashMap<String,String> readInfo(String line) {
